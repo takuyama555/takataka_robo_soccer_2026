@@ -15,6 +15,8 @@ int game_mode = 1;
 #define STRAIGHT_SPEED 60
 #define CIRC_SPEED     50
 
+int move_angle = 0;
+
 /////// ボタン関連
 const int buttonOn_Pin = 52;   
 const int buttonOff_Pin = 53;  
@@ -64,7 +66,6 @@ void setupMPU() {
   mpu.initialize();
   devStatus = mpu.dmpInitialize();
 
-  // ★あなたのロボット固有の値
   mpu.setXAccelOffset(-1811);
   mpu.setYAccelOffset(-1108);
   mpu.setZAccelOffset(960);
@@ -118,13 +119,19 @@ void setup()
   TCCR3B = (TCCR3B & 0b11111000) | 0x01;  
   TCCR4B = (TCCR4B & 0b11111000) | 0x01;  
 
-  // ★修正: ループの重複を整理しました
   for(int i = 0; i < 4; i++){
     pinMode(Motor_PWM[i], OUTPUT);
     pinMode(Motor_DIR[i], OUTPUT);
     digitalWrite(Motor_PWM[i], HIGH);
     analogWrite(Motor_DIR[i], 127); // 初期停止
     Motor_rad[i] = Motor_angle[i] * M_PI / 180.0;
+  }
+    for (int i = 0; i < 4; i++) {
+
+    digitalWrite(Motor_PWM[i], HIGH);
+
+    analogWrite(Motor_DIR[i], 127);
+
   }
 }
 
@@ -175,26 +182,23 @@ void MotorDrive(int face_angle, int speed_per, int gryo_val)
 // ==========================================
 // IR取得 
 // ==========================================
-void ir_read(){
-  while (Serial2.available()) Serial2.read();
-  Serial2.write(255); 
+void ir_read(void) {
+  Serial2.write(255);
 
-  unsigned long start_time = millis();
+  unsigned long request_time = micros();
   while (Serial2.available() < 5) {
-    if (millis() - start_time > TIMEOUT_MS) return; 
+    if (micros() - request_time > 10000) return;
   }
 
   if (Serial2.read() == 255) {
-    byte raw_flag = Serial2.read();
-    byte raw_ang_low = Serial2.read();
-    byte raw_ang_high = Serial2.read();
-    byte raw_dist = Serial2.read();
+    byte buf[4];
+    Serial2.readBytes(buf, 4);
 
-    ir_flag = raw_flag;
-    ir_angle = raw_ang_low | (raw_ang_high << 7);
-    ir_dist = raw_dist;
+    ir_flag = buf[0];
+    ir_angle = buf[1] | (buf[2] << 7);
+    ir_dist = buf[3] + 5;
   }
-} 
+}
 
 // ==========================================
 // ライン取得
@@ -259,7 +263,7 @@ void loop()
       delay(30);
     }
     else if(ir_flag == 1){
-        int move_angle = 0;
+        move_angle = 0;
         float calc_angle = ir_angle;
         //calc_angleを0から180,0から-180に設定
         if (ir_angle > 180) {
@@ -272,9 +276,9 @@ void loop()
         float move_angle_temp = calc_angle + constrain(calc_angle * circ_exp * CIRC_WEIGHT, -90, 90);
 
         if (abs(move_angle_temp) < 30) {
-            speed = 70;
+            speed = 90;
         } else {
-            speed = 60;
+            speed = 70;
         }
 
         ///0から360に変換
@@ -292,10 +296,12 @@ void loop()
     // デバッグ表示
     if (game_mode == 1){
       Serial.print("Gyro:"); Serial.print(gryo_val);
+      Serial.print(" | Ball_flag:"); Serial.print(ir_flag);
       Serial.print(" | IR_Ang:"); Serial.print(ir_angle);
       Serial.print(" | Dist:"); Serial.print(ir_dist);
       Serial.print(" | Spd:"); Serial.print(speed); // Speedも表示して確認
       Serial.print(" | Line:"); Serial.print(line_flag);
+      Serial.print(" | move_angle:"); Serial.print(move_angle);
       Serial.println(); // 改行だけにする
     }
     
@@ -336,6 +342,7 @@ void loop()
     } else {
        // 待機中
        delay(100);
+       Serial.println(gryo_val);
     }
   }
 }

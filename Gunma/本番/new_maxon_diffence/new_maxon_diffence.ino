@@ -102,15 +102,7 @@ void setup()
   Serial2.begin(115200);
   Serial3.begin(115200);
   setupMPU();
-  
-  // ★修正: ここでのループ1回だけでOKです。重複を削除しました。
-  for(int i = 0; i < 4; i++){
-    pinMode(Motor_PWM[i], OUTPUT);
-    pinMode(Motor_DIR[i], OUTPUT);
-    digitalWrite(Motor_PWM[i], HIGH);
-    Motor_rad[i] = Motor_angle[i] * M_PI / 180.0;
-  }
-
+ 
   pinMode(buttonOn_Pin, INPUT_PULLUP);
   pinMode(buttonOff_Pin, INPUT_PULLUP);
 
@@ -118,6 +110,20 @@ void setup()
   TCCR2B = (TCCR2B & 0b11111000) | 0x01;  // Timer2
   TCCR3B = (TCCR3B & 0b11111000) | 0x01;  // Timer3
   TCCR4B = (TCCR4B & 0b11111000) | 0x01;  // Timer4
+
+  for(int i = 0; i < 4; i++){
+    pinMode(Motor_PWM[i], OUTPUT);
+    pinMode(Motor_DIR[i], OUTPUT);
+    digitalWrite(Motor_PWM[i], HIGH);
+    Motor_rad[i] = Motor_angle[i] * M_PI / 180.0;
+  }
+  for (int i = 0; i < 4; i++) {
+
+    digitalWrite(Motor_PWM[i], HIGH);
+
+    analogWrite(Motor_DIR[i], 127);
+
+  }
 }
 
 // ==========================================
@@ -296,9 +302,9 @@ void line_trace(float gryo_val){
   float move_rad = atan2(m_y , m_x);
   float move_angle = move_rad * 180.0 / PI; // float計算推奨
 
-  float speed_coefficient = 5.0;
+  float speed_coefficient = 7.0;
   float move_speed = sqrt(m_x * m_x + m_y * m_y) * speed_coefficient;
-  move_speed = constrain(move_speed, 0, 70);
+  move_speed = constrain(move_speed, 0, 100);
 
 
   MotorDrive((int)move_angle, (int)move_speed, (int)gryo_val);
