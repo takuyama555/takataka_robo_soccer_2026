@@ -278,7 +278,7 @@ void loop()
         if (abs(move_angle_temp) < 30) {
             speed = 90;
         } else {
-            speed = 70;
+            speed = 60;
         }
 
         ///0から360に変換
