@@ -6,7 +6,7 @@
 #define gryo_p 0.8 
 
 //////// GAME MODE (1:デバッグ表示あり, 0:本番用) //////////
-int game_mode = 1;
+int game_mode = 0;
 
 // 回り込みのための計算式の係数
 #define CIRC_BASE pow(0.6, 1.0 / 22.0)
@@ -34,7 +34,7 @@ int speed_pwm = 0;
 double face_rad = 0.0; 
 int Motor_angle[4] = {45, 135, 225, 315};
 double Motor_rad[4] = {0.0, 0.0, 0.0, 0.0};
-int Motor_rev[4] = {1, 1, -1, -1}; // 反転調整
+int Motor_rev[4] = {1, 1, 1, -1}; // 反転調整
 double power[4] = {0.0, 0.0, 0.0, 0.0};
 int speed = 0; // グローバル変数を0で初期化
 
@@ -276,9 +276,11 @@ void loop()
         float move_angle_temp = calc_angle + constrain(calc_angle * circ_exp * CIRC_WEIGHT, -90, 90);
 
         if (abs(move_angle_temp) < 30) {
-            speed = 90;
-        } else {
-            speed = 60;
+            speed = 150;
+        } else if(ir_dist < 40){
+            speed = 100;
+        }else{
+          speed = 60;
         }
 
         ///0から360に変換
