@@ -3,5 +3,5 @@
     "board": "arduino:avr:mega",
     "sketch": "Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino",
     "output": "./build",
-    "port": "COM10"
+    "port": "COM8"
 }

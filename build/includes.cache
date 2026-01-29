@@ -2,60 +2,60 @@
   {
     "Sourcefile": null,
     "Include": "",
-    "Includepath": "C:\\Users\\yamas\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\cores\\arduino"
+    "Includepath": "C:\\Users\\buchi\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\cores\\arduino"
   },
   {
     "Sourcefile": null,
     "Include": "",
-    "Includepath": "C:\\Users\\yamas\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\variants\\mega"
+    "Includepath": "C:\\Users\\buchi\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\variants\\mega"
   },
   {
-    "Sourcefile": "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\build\\sketch\\new_maxon_offence.ino.cpp",
+    "Sourcefile": "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\build\\sketch\\new_maxon_offence.ino.cpp",
     "Include": "I2Cdev.h",
-    "Includepath": "C:\\Users\\yamas\\Documents\\Arduino\\libraries\\MPU6050\\src"
+    "Includepath": "C:\\Users\\buchi\\OneDrive\\ドキュメント\\Arduino\\libraries\\MPU6050\\src"
   },
   {
-    "Sourcefile": "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\build\\sketch\\new_maxon_offence.ino.cpp",
+    "Sourcefile": "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\build\\sketch\\new_maxon_offence.ino.cpp",
     "Include": "Wire.h",
-    "Includepath": "C:\\Users\\yamas\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\libraries\\Wire\\src"
+    "Includepath": "C:\\Users\\buchi\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\libraries\\Wire\\src"
   },
   {
-    "Sourcefile": "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\build\\sketch\\new_maxon_offence.ino.cpp",
+    "Sourcefile": "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\build\\sketch\\new_maxon_offence.ino.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\yamas\\Documents\\Arduino\\libraries\\MPU6050\\src\\I2Cdev.cpp",
+    "Sourcefile": "C:\\Users\\buchi\\OneDrive\\ドキュメント\\Arduino\\libraries\\MPU6050\\src\\I2Cdev.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\yamas\\Documents\\Arduino\\libraries\\MPU6050\\src\\MPU6050.cpp",
+    "Sourcefile": "C:\\Users\\buchi\\OneDrive\\ドキュメント\\Arduino\\libraries\\MPU6050\\src\\MPU6050.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\yamas\\Documents\\Arduino\\libraries\\MPU6050\\src\\MPU6050_6Axis_MotionApps20.cpp",
+    "Sourcefile": "C:\\Users\\buchi\\OneDrive\\ドキュメント\\Arduino\\libraries\\MPU6050\\src\\MPU6050_6Axis_MotionApps20.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\yamas\\Documents\\Arduino\\libraries\\MPU6050\\src\\MPU6050_6Axis_MotionApps612.cpp",
+    "Sourcefile": "C:\\Users\\buchi\\OneDrive\\ドキュメント\\Arduino\\libraries\\MPU6050\\src\\MPU6050_6Axis_MotionApps612.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\yamas\\Documents\\Arduino\\libraries\\MPU6050\\src\\MPU6050_9Axis_MotionApps41.cpp",
+    "Sourcefile": "C:\\Users\\buchi\\OneDrive\\ドキュメント\\Arduino\\libraries\\MPU6050\\src\\MPU6050_9Axis_MotionApps41.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\yamas\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\libraries\\Wire\\src\\Wire.cpp",
+    "Sourcefile": "C:\\Users\\buchi\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\libraries\\Wire\\src\\Wire.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\yamas\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\libraries\\Wire\\src\\utility\\twi.c",
+    "Sourcefile": "C:\\Users\\buchi\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.7\\libraries\\Wire\\src\\utility\\twi.c",
     "Include": "",
     "Includepath": null
   }

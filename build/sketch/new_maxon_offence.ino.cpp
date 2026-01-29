@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#line 1 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+#line 1 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
 #include <math.h> 
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
@@ -62,23 +62,23 @@ int line_check[32];
 // ==========================================
 // ジャイロ初期化
 // ==========================================
-#line 63 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+#line 63 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
 void setupMPU();
-#line 89 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+#line 89 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
 double getYawPitchRoll();
-#line 105 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+#line 105 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
 void setup();
-#line 141 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+#line 141 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
 void Motor(int Motor_num, int motor_speed);
-#line 155 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+#line 155 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
 void MotorDrive(int face_angle, int speed_per, int gryo_val);
-#line 185 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+#line 185 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
 void ir_read(void);
-#line 206 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+#line 206 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
 void line_read();
-#line 250 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+#line 250 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
 void loop();
-#line 63 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+#line 63 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
 void setupMPU() {
   Wire.begin();
   Wire.setClock(400000);

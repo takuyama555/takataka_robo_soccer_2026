@@ -1,8 +1,8 @@
-# 1 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
-# 2 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 2
-# 3 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 2
-# 4 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 2
-# 5 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 2
+# 1 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+# 2 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 2
+# 3 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 2
+# 4 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 2
+# 5 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 2
 
 
 
@@ -94,9 +94,9 @@ double getYawPitchRoll() {
     mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 
     double mpu_degree = ypr[0] * 180 / 
-# 95 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
+# 95 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
                                       3.14159265358979323846 /* pi */
-# 95 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+# 95 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
                                           ;
     print[18] = mpu_degree;
     current_yaw = mpu_degree;
@@ -120,40 +120,40 @@ void setup()
 
   // タイマー設定 (Arduino Mega前提)
   
-# 117 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
+# 117 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
  (*(volatile uint8_t *)(0x81)) 
-# 117 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+# 117 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
         = (
-# 117 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
+# 117 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
            (*(volatile uint8_t *)(0x81)) 
-# 117 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+# 117 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
                   & 0b11111000) | 0x01;
   
-# 118 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
+# 118 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
  (*(volatile uint8_t *)(0xB1)) 
-# 118 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+# 118 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
         = (
-# 118 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
+# 118 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
            (*(volatile uint8_t *)(0xB1)) 
-# 118 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+# 118 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
                   & 0b11111000) | 0x01;
   
-# 119 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
+# 119 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
  (*(volatile uint8_t *)(0x91)) 
-# 119 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+# 119 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
         = (
-# 119 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
+# 119 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
            (*(volatile uint8_t *)(0x91)) 
-# 119 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+# 119 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
                   & 0b11111000) | 0x01;
   
-# 120 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
+# 120 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
  (*(volatile uint8_t *)(0xA1)) 
-# 120 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+# 120 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
         = (
-# 120 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
+# 120 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
            (*(volatile uint8_t *)(0xA1)) 
-# 120 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+# 120 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
                   & 0b11111000) | 0x01;
 
   for(int i = 0; i < 4; i++){
@@ -162,9 +162,9 @@ void setup()
     digitalWrite(Motor_PWM[i], 0x1);
     analogWrite(Motor_DIR[i], 127); // 初期停止
     Motor_rad[i] = Motor_angle[i] * 
-# 127 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
+# 127 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
                                    3.14159265358979323846 /* pi */ 
-# 127 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+# 127 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
                                         / 180.0;
   }
     for (int i = 0; i < 4; i++) {
@@ -197,9 +197,9 @@ void MotorDrive(int face_angle, int speed_per, int gryo_val)
 {
   speed_pwm = 127 * speed_per / 100;
   face_rad = face_angle * 
-# 158 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
+# 158 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino" 3
                          3.14159265358979323846 /* pi */ 
-# 158 "c:\\Users\\yamas\\Documents\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
+# 158 "c:\\Users\\buchi\\OneDrive\\ドキュメント\\GitHub\\takataka_robo_soccer_2026\\Gunma\\本番\\new_maxon_offence\\new_maxon_offence.ino"
                               / 180.0;
 
   for (int i = 0; i < 4; i++) {

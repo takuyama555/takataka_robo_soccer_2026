@@ -9,7 +9,7 @@
 int game_mode = 0;
 
 // 回り込みのための計算式の係数
-#define CIRC_BASE pow(0.6, 1.0 / 22.0)
+#define CIRC_BASE pow(0.6, 1.0 / 20.0)
 #define CIRC_WEIGHT 3.5
 
 #define STRAIGHT_SPEED 60
