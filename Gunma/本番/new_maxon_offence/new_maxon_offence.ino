@@ -334,7 +334,7 @@ void loop()
     // --- スタート準備 ---
     if (game_start == 1) {
       if ((gryo_val >= 60 && gryo_val <= 200) || (gryo_val <= -60 && gryo_val >= -200)) {
-         MotorDrive(0, 0, 20); 
+         MotorDrive(0, 0, 40); 
          Serial.println("Stabilizing...");
       } else {
          game_start = 0;
