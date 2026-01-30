@@ -6,7 +6,7 @@
 #define gryo_p 0.8 
 
 //////// GAME MODE (1:デバッグ表示あり, 0:本番用) //////////
-int game_mode = 1;
+int game_mode = 0;
 
 // 回り込みのための計算式の係数
 #define CIRC_BASE pow(0.6, 1.0 / 20.0)
@@ -32,7 +32,7 @@ int speed_pwm = 0;
 double face_rad = 0.0; 
 int Motor_angle[4] = {45, 135, 225, 315};
 double Motor_rad[4] = {0.0, 0.0, 0.0, 0.0};
-double Motor_rev[4] = {1.4, 1, -1, -1}; // 反転調整
+double Motor_rev[4] = {1.4, 1, 1, -1}; // 反転調整
 double power[4] = {0.0, 0.0, 0.0, 0.0};
 int speed = 0; // グローバル変数を0で初期化
 
@@ -118,7 +118,6 @@ void setup()
   TCCR3B = (TCCR3B & 0b11111000) | 0x01;  
   TCCR4B = (TCCR4B & 0b11111000) | 0x01;  
 
-  // ★修正: ループの重複を整理しました
   for(int i = 0; i < 4; i++){
     pinMode(Motor_PWM[i], OUTPUT);
     pinMode(Motor_DIR[i], OUTPUT);
@@ -248,7 +247,6 @@ void loop()
   // ジャイロ更新
   double gryo_val = getYawPitchRoll() * gryo_p ;
   
-  // ★修正: ループの頭で speed をリセット
   speed = 0; 
 
   if (game_flag == 1){
@@ -271,10 +269,10 @@ void loop()
         // calc_angleを使うことで、左にあるときはマイナスの補正がかかるようになる
         float move_angle_temp = calc_angle + constrain(calc_angle * circ_exp * CIRC_WEIGHT, -90, 90);
 
-        if (abs(move_angle_temp) < 30) {
-            speed = 70;
+        if (abs(move_angle_temp) < 20) {
+            speed = 120;
         } else {
-            speed = 60;
+            speed = 85;
         }
 
         ///0から360に変換
