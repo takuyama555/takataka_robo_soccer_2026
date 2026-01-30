@@ -3,7 +3,7 @@
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "Wire.h"
 
-#define gryo_p 0.8 
+#define gyro_p 0.8 
 
 //////// GAME MODE (1:デバッグ表示あり, 0:本番用) //////////
 int game_mode = 1;
@@ -144,13 +144,13 @@ void Motor(int Motor_num, int speed)
 // ==========================================
 // 移動関数 
 // ==========================================
-void MotorDrive(int face_angle, int speed_per, int gryo_val)
+void MotorDrive(int face_angle, int speed_per, int gyro_val)
 {
   speed_pwm = 127 * speed_per / 100; 
   face_rad = face_angle * M_PI / 180.0; 
 
   for (int i = 0; i < 4; i++) {
-    power[i] = (sin(Motor_rad[i] - face_rad) * speed_pwm + gryo_val) * Motor_rev[i];  
+    power[i] = (sin(Motor_rad[i] - face_rad) * speed_pwm + gyro_val) * Motor_rev[i];  
   }
 
   double max_val = 0.0;
@@ -271,43 +271,82 @@ float get_line_y() {
 // ==========================================
 // キーパー動作用関数
 // ==========================================
+// ==========================================
+// キーパー動作用関数（コーナー対策強化版）
+// ==========================================
 void line_trace(float gryo_val){
   
-  float line_power = 3.0; 
+  float line_power = 2.5; // 反発の急激さ
 
-  // --- X軸の計算 ---
+  // --- X軸（前後）のライン反発計算 ---
   float l_x_tmp = get_line_x(); 
   int sign_l_x = 1;
   if (l_x_tmp < 0) sign_l_x = -1;
   float l_x_curved = pow(abs(l_x_tmp), line_power) * sign_l_x;
 
-  // --- Y軸の計算 ---
+  // --- Y軸（左右）のライン反発計算 ---
   float l_y_tmp = get_line_y();
   int sign_l_y = 1;
   if (l_y_tmp < 0) sign_l_y = -1;
   float l_y_curved = pow(abs(l_y_tmp), line_power) * sign_l_y;
 
-  // ゲイン設定
-  float line_gain = 5.0; 
+  // ゲイン設定（ライン反発の強さ）
+  float line_gain = 3.0; 
 
   float l_x = l_x_curved * line_gain;
   float l_y = l_y_curved * line_gain;
 
+  // ボール追従ベクトル
   float ball_coefficient = 5.0;   
   float ir_rad = ir_angle * PI / 180.0; 
   float b_y = sin(ir_rad) * ball_coefficient;
   
+  // ==========================================================
+  // ★コーナー検知 & ロック処理 (ここが修正ポイント) ★
+  // ==========================================================
+  
+  // 1. コーナー判定の閾値（0.5 〜 1.5 くらいで調整）
+  //    XとYの両方でこの値以上の反発を感じたら「角にいる」とみなす
+  float corner_threshold = 0.8; 
+
+  // 2. サイドライン（横壁）の閾値
+  float side_threshold = 1.2;
+
+  // --- A. 完全な「角」にハマった場合の処理 ---
+  // 前後のライン(X)と左右のライン(Y)を同時に踏んでいる場合
+  if (abs(l_x) > corner_threshold && abs(l_y) > corner_threshold) {
+      
+      // ボールを追う力(b_y)を完全にゼロにする
+      b_y = 0; 
+      
+      // さらに、角から脱出しやすくするために、ライン反発(l_x, l_y)を少し強める
+      l_x *= 1.5;
+      l_y *= 1.5;
+  }
+  // --- B. 直線の壁際（サイドライン）での処理 ---
+  // 前回のコードと同じ（壁に向かってボールを追おうとしたら止める）
+  else {
+      // 右のラインを踏んでいて、さらに右にボールがある場合
+      if (l_y > side_threshold && b_y < 0) {
+          b_y = 0; 
+      }
+      // 左のラインを踏んでいて、さらに左にボールがある場合
+      else if (l_y < -side_threshold && b_y > 0) {
+          b_y = 0; 
+      }
+  }
+  // ==========================================================
+
   float m_x = l_x;
   float m_y = l_y + b_y;
   
   // 移動角度・速度計算
   float move_rad = atan2(m_y , m_x);
-  float move_angle = move_rad * 180.0 / PI; // float計算推奨
+  float move_angle = move_rad * 180.0 / PI; 
 
-  float speed_coefficient = 30.0;
+  float speed_coefficient = 20.0;
   float move_speed = sqrt(m_x * m_x + m_y * m_y) * speed_coefficient;
   move_speed = constrain(move_speed, 0, 100);
-
 
   MotorDrive((int)move_angle, (int)move_speed, (int)gryo_val);
 }
@@ -318,7 +357,7 @@ void line_trace(float gryo_val){
 // ==========================================
 void loop()
 {
-  double gryo_val = getYawPitchRoll() * gryo_p ;
+  double gyro_val = getYawPitchRoll() * gyro_p ;
 
 
   if (game_flag != 0){
@@ -341,10 +380,10 @@ void loop()
       }
 
       if (x_position == 1){
-        MotorDrive(195, 60, (int)gryo_val);
+        MotorDrive(195, 60, (int)gyro_val);
       }
       if (x_position == 2){
-        MotorDrive(165, 60, (int)gryo_val);
+        MotorDrive(165, 60, (int)gyro_val);
       }
     }
     
@@ -357,12 +396,12 @@ void loop()
         x_position = 1;
       }
       
-      line_trace(gryo_val);
+      line_trace(gyro_val);
+      
     }
-
     // デバッグ表示
     if (game_mode == 1){
-      Serial.print("Gyro:"); Serial.print(gryo_val);
+      Serial.print("Gyro:"); Serial.print(gyro_val);
       Serial.print(" | IR_Ang:"); Serial.print(ir_angle);
       Serial.print(" | line_flag:"); Serial.print(line_flag);
       Serial.print(" | line_Ang:"); Serial.print(line_angle);
@@ -396,7 +435,7 @@ void loop()
 
     // --- スタート準備 ---
     if (game_start == 1) {
-      if ((gryo_val >= 60 && gryo_val <= 200) || (gryo_val <= -60 && gryo_val >= -200)) {
+      if ((gyro_val >= 60 && gyro_val <= 200) || (gyro_val <= -60 && gyro_val >= -200)) {
          MotorDrive(0, 0, 20); 
          Serial.println("Stabilizing...");
       } else {
@@ -405,8 +444,8 @@ void loop()
          Serial.println("GO! Game Start!");
       }
     } else {
-        Serial.print("gryo_val:");
-        Serial.print(gryo_val);
+        Serial.print("gyro_val:");
+        Serial.print(gyro_val);
         Serial.print("game_mode:");
         Serial.println(game_mode);
         delay(10); // 少し待つ
