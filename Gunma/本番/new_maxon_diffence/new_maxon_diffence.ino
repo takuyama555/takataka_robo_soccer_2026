@@ -306,7 +306,7 @@ void line_trace(float gryo_val){
 
   float speed_coefficient = 30.0;
   float move_speed = sqrt(m_x * m_x + m_y * m_y) * speed_coefficient;
-  move_speed = constrain(move_speed, 0, 200);
+  move_speed = constrain(move_speed, 0, 100);
 
 
   MotorDrive((int)move_angle, (int)move_speed, (int)gryo_val);
