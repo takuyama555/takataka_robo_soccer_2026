@@ -1,0 +1,6 @@
+# Arduinoのビルド出力フォルダを無視
+build/
+
+# VS Codeの設定ファイル（個人設定が含まれる場合があるため）
+.vscode/ipch/
+.vscode/browse.vc.db
