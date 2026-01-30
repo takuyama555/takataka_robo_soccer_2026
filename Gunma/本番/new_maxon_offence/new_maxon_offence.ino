@@ -6,10 +6,10 @@
 #define gryo_p 0.8 
 
 //////// GAME MODE (1:デバッグ表示あり, 0:本番用) //////////
-int game_mode = 0;
+int game_mode = 1;
 
 // 回り込みのための計算式の係数
-#define CIRC_BASE pow(0.6, 1.0 / 22.0)
+#define CIRC_BASE pow(0.6, 1.0 / 20.0)
 #define CIRC_WEIGHT 3.5
 
 #define STRAIGHT_SPEED 60
