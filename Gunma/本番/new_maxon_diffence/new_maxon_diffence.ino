@@ -3,7 +3,7 @@
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "Wire.h"
 
-#define gyro_p 0.8 
+#define gyro_p 1.0
 
 //////// GAME MODE (1:デバッグ表示あり, 0:本番用) //////////
 int game_mode = 1;
@@ -30,6 +30,8 @@ int Motor_angle[4] = {45, 135, 225, 315};
 double Motor_rad[4] = {0.0, 0.0, 0.0, 0.0};
 int Motor_rev[4] = {1, 1, 1, -1}; // 反転調整
 double power[4] = {0.0, 0.0, 0.0, 0.0};
+float l_x = 0.0;
+float l_y = 0.0;
 
 // --- ジャイロ変数 ---
 MPU6050 mpu;
@@ -274,9 +276,9 @@ float get_line_y() {
 // ==========================================
 // キーパー動作用関数（コーナー対策強化版）
 // ==========================================
-void line_trace(float gryo_val){
+void line_trace(float gyro_val){
   
-  float line_power = 2.5; // 反発の急激さ
+  float line_power = 2; // 反発の急激さ
 
   // --- X軸（前後）のライン反発計算 ---
   float l_x_tmp = get_line_x(); 
@@ -286,57 +288,22 @@ void line_trace(float gryo_val){
 
   // --- Y軸（左右）のライン反発計算 ---
   float l_y_tmp = get_line_y();
-  int sign_l_y = 1;
+  int sign_l_y = 10;
   if (l_y_tmp < 0) sign_l_y = -1;
   float l_y_curved = pow(abs(l_y_tmp), line_power) * sign_l_y;
 
   // ゲイン設定（ライン反発の強さ）
-  float line_gain = 3.0; 
+  float line_gain = 2.0; 
 
-  float l_x = l_x_curved * line_gain;
-  float l_y = l_y_curved * line_gain;
+  l_x = l_x_curved * line_gain;
+  l_y = l_y_curved * line_gain;
 
   // ボール追従ベクトル
   float ball_coefficient = 5.0;   
   float ir_rad = ir_angle * PI / 180.0; 
   float b_y = sin(ir_rad) * ball_coefficient;
-  
-  // ==========================================================
-  // ★コーナー検知 & ロック処理 (ここが修正ポイント) ★
-  // ==========================================================
-  
-  // 1. コーナー判定の閾値（0.5 〜 1.5 くらいで調整）
-  //    XとYの両方でこの値以上の反発を感じたら「角にいる」とみなす
-  float corner_threshold = 0.8; 
 
-  // 2. サイドライン（横壁）の閾値
-  float side_threshold = 1.2;
-
-  // --- A. 完全な「角」にハマった場合の処理 ---
-  // 前後のライン(X)と左右のライン(Y)を同時に踏んでいる場合
-  if (abs(l_x) > corner_threshold && abs(l_y) > corner_threshold) {
-      
-      // ボールを追う力(b_y)を完全にゼロにする
-      b_y = 0; 
-      
-      // さらに、角から脱出しやすくするために、ライン反発(l_x, l_y)を少し強める
-      l_x *= 1.5;
-      l_y *= 1.5;
-  }
-  // --- B. 直線の壁際（サイドライン）での処理 ---
-  // 前回のコードと同じ（壁に向かってボールを追おうとしたら止める）
-  else {
-      // 右のラインを踏んでいて、さらに右にボールがある場合
-      if (l_y > side_threshold && b_y < 0) {
-          b_y = 0; 
-      }
-      // 左のラインを踏んでいて、さらに左にボールがある場合
-      else if (l_y < -side_threshold && b_y > 0) {
-          b_y = 0; 
-      }
-  }
-  // ==========================================================
-
+  //最終的なベクトル計算
   float m_x = l_x;
   float m_y = l_y + b_y;
   
@@ -348,7 +315,7 @@ void line_trace(float gryo_val){
   float move_speed = sqrt(m_x * m_x + m_y * m_y) * speed_coefficient;
   move_speed = constrain(move_speed, 0, 100);
 
-  MotorDrive((int)move_angle, (int)move_speed, (int)gryo_val);
+  MotorDrive((int)move_angle, (int)move_speed, (int)gyro_val);
 }
 
 
@@ -405,7 +372,10 @@ void loop()
       Serial.print(" | IR_Ang:"); Serial.print(ir_angle);
       Serial.print(" | line_flag:"); Serial.print(line_flag);
       Serial.print(" | line_Ang:"); Serial.print(line_angle);
-      Serial.print("| game_flag:"); Serial.println(game_flag);
+      Serial.print("| game_flag:"); Serial.print(game_flag);
+      Serial.print("| l_x:"); Serial.print(l_x);
+      Serial.print("| l_y:"); Serial.print(l_y);
+      Serial.println(); // 改行だけにする
        delay(50); 
     }
     
