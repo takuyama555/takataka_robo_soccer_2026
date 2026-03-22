@@ -26,8 +26,8 @@ const unsigned long TIMEOUT_MS = 5;
 
 // --- 変数定義 ---
 double print[32];
-int Motor_PWM[4] = {4,6,3,7};
-int Motor_DIR[4] = {2,8,5,9};
+int Motor_DIR[4] = {5,2,7,9};
+int Motor_PWM[4] = {4,3,6,8};
 int speed_pwm = 0; 
 double face_rad = 0.0; 
 int Motor_angle[4] = {45, 135, 225, 315};
@@ -42,6 +42,38 @@ int  yellow_angle = 0;
 bool blue_flag   = 0;
 int  blue_angle   = 0;
 int goal_angle = 0;
+///////ir関連///////
+const int PIN_MUX_S0 = 26; // デジタル出力
+const int PIN_MUX_S1 = 27; // デジタル出力
+const int PIN_MUX_S2 = 28; // デジタル出力
+const int PIN_MUX_S3 = 29; // デジタル出力
+const int PIN_SIG1   = 24; // アナログ入力 (A10) 0-15番
+const int PIN_SIG2   = 25; // アナログ入力 (A11) 16-31番
+
+// --- 設定 ---
+const int MAX_ADC_VAL = 4072; 
+const int SENSOR_THRESHOLD = 500; // ボール有無の閾値 (環境に合わせて調整)
+
+// --- グローバル変数 ---
+int ir_values[32]; 
+int ball_flag = 0;
+
+float ir_deg_all = 0.0;
+float ir_dist_all = 0.0;
+
+int MAX_value = 0;
+int MAX_pin = 0;
+
+float ir_deg_part = 0.0;
+float ir_dist_part = 0.0;
+
+// ベクトル計算用変数 
+float sum_x_all = 0;
+float sum_y_all = 0;
+float sum_x_part = 0;
+float sum_y_part = 0;
+float ball_angle = 0;
+
 // --- ジャイロ変数 ---
 MPU6050 mpu;
 uint8_t devStatus;
@@ -118,11 +150,15 @@ void setup()
   pinMode(buttonOn_Pin, INPUT_PULLUP);
   pinMode(buttonOff_Pin, INPUT_PULLUP);
 
-  // タイマー設定 (Arduino Mega前提)
-  TCCR1B = (TCCR1B & 0b11111000) | 0x01;  
-  TCCR2B = (TCCR2B & 0b11111000) | 0x01;  
-  TCCR3B = (TCCR3B & 0b11111000) | 0x01;  
-  TCCR4B = (TCCR4B & 0b11111000) | 0x01;  
+  pinMode(PIN_MUX_S0, OUTPUT);
+  pinMode(PIN_MUX_S1, OUTPUT);
+  pinMode(PIN_MUX_S2, OUTPUT);
+  pinMode(PIN_MUX_S3, OUTPUT);
+  
+  pinMode(PIN_SIG1, INPUT);
+  pinMode(PIN_SIG2, INPUT);
+
+  analogReadResolution(12); // 0-4095
 
   for(int i = 0; i < 4; i++){
     pinMode(Motor_PWM[i], OUTPUT);
@@ -180,6 +216,8 @@ void MotorDrive(int face_angle, int speed_per, int gryo_val)
 // ==========================================
 // IR取得 
 // ==========================================
+
+
 void ir_read(){
   while (Serial2.available()) Serial2.read();
   Serial2.write(255); 
