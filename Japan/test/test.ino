@@ -77,6 +77,7 @@ float sum_y_all = 0;
 float sum_x_part = 0;
 float sum_y_part = 0;
 float ball_angle = 0;
+float ball_dist = 0;   
 
 // --- ジャイロ変数 ---
 MPU6050 mpu;
@@ -270,8 +271,8 @@ void calc_angle(){
   sum_y_all = 0.0;
 
   for (int i = 0; i < 32; i++){
-      sum_x_all += cos(11.25 * i * PI / 180.0) * values[i];
-      sum_y_all += sin(11.25 * i * PI / 180.0) * values[i];
+      sum_x_all += cos(11.25 * i * PI / 180.0) * ir_values[i];
+      sum_y_all += sin(11.25 * i * PI / 180.0) * ir_values[i];
   }
 
   // 角度
@@ -290,8 +291,8 @@ void calc_angle(){
   for (int k = -6; k <= 6; k++){
       int idx = (MAX_pin + k + 32) % 32; // リングバッファ
 
-      sum_x_part += cos(11.25 * idx * PI / 180.0) * values[idx];
-      sum_y_part += sin(11.25 * idx * PI / 180.0) * values[idx];
+      sum_x_part += cos(11.25 * idx * PI / 180.0) * ir_values[idx];
+      sum_y_part += sin(11.25 * idx * PI / 180.0) * ir_values[idx];
   }
   
   // 角度
@@ -330,27 +331,8 @@ void get_ball_angle(){
   }
 }
 
-void get_ball_angle(){
-  sensor_read();
-
-  if (ball_flag == 1){ 
-    calc_angle();
-  } else {
-    ir_deg_all = 0;
-    ir_dist_all = 0;
-    ir_deg_part = 0;
-    ir_dist_part = 0;
-  }
-
-  if ( ir_dist_part > 40){
-    ball_angle = ir_deg_all;
-  }else{
-    ball_angle = ir_deg_all;
-  }
-}
-
 // ==========================================
-// ライン取得 (★ Serial4 に変更)
+// ライン取得 
 // ==========================================
 void line_read(){
   while (Serial4.available()) Serial4.read();
@@ -394,7 +376,7 @@ void line_read(){
 }
 
 // ==========================================
-// ゴール取得 (★ Serial3 のまま)
+// ゴール取得
 // ==========================================
 void camera_read() {
     Serial3.write(253); 
@@ -472,23 +454,23 @@ void loop() {
       delay(30);
     }
     // --- ボール処理 ---
-    else if(ir_flag == 1){
+    else if(ball_flag == 1){
         line_time = 0;
         for (int i = 0; i < 10; i++){
             recent_line_angle[i] = 999;
         }
 
         int move_angle = 0;
-        float calc_ang = ir_angle; 
+        float calc_ang = ball_angle; 
 
-        if (ir_angle > 180) {
-            calc_ang = ir_angle - 360; 
+        if (ball_angle > 180) {
+            calc_ang = ball_angle - 360; 
         }
         
-        float circ_exp = pow(CIRC_BASE, ir_dist * 2.0);
+        float circ_exp = pow(CIRC_BASE, ball_dist * 2.0);
         float move_angle_temp = calc_ang + constrain(calc_ang * circ_exp * CIRC_WEIGHT, -90, 90);
 
-        if (abs(move_angle_temp) < 20 && ir_dist < 10) {
+        if (abs(move_angle_temp) < 20 && ball_dist < 10) {
             speed = 150;
         } else {
             speed = 100;
@@ -507,8 +489,8 @@ void loop() {
     // --- デバッグ表示 ---
     if (game_mode == 1){
       Serial.print("Gyro:"); Serial.print(gyro_val);
-      Serial.print(" | IR_Ang:"); Serial.print(ir_angle);
-      Serial.print(" | Dist:"); Serial.print(ir_dist);
+      Serial.print(" | IR_Ang:"); Serial.print(ball_angle);
+      Serial.print(" | Dist:"); Serial.print(ball_dist);
       Serial.print(" | Spd:"); Serial.print(speed); 
       Serial.print(" | Line:"); Serial.print(line_flag);
       Serial.print(" | Goal_Ang:"); Serial.print(goal_angle);
