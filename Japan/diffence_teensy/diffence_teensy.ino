@@ -496,14 +496,20 @@ void loop() {
     // --- ボール処理 ---
     else if(ball_flag == 1){
         int move_angle = 0;
-        
+
         if (0 <ball_angle && ball_angle < 180) {
             move_angle = 100; 
-            speed = 85;
+            diff = abs(ball_angle - 90);
+            diff_ratio = diff / 90.0;
+            speed_ratio = diff_ratio * diff_ratio;
+            speed = 90 * speed_ratio;
         }
         else if(180 < ball_angle && ball_angle < 340) {
             move_angle = 260;
-            speed = 85;
+            diff = abs(ball_angle - 270);
+            diff_ratio = diff / 90.0;
+            speed_ratio = diff_ratio * diff_ratio;
+            speed = 90 * speed_ratio;
         }else{
             speed = 0;
         }
