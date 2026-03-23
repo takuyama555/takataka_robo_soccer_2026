@@ -1,5 +1,5 @@
-#define G2_PWM 3 // Enableピン（High固定）
-#define G2_DIR 2 // PWMピン（ここで制御）
+#define G2_PWM 2 // Enableピン（High固定）
+#define G2_DIR 3 // PWMピン（ここで制御）
 
 // 12ビットの最大値 (0〜4095)
 const int MAX_VAL = 4095;

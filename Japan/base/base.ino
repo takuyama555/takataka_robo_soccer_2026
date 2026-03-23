@@ -6,7 +6,7 @@
 #define gyro_p 0.8 
 
 //////// GAME MODE (1:デバッグ表示あり, 0:本番用) //////////
-int game_mode = 1;
+int game_mode = 0;
 
 // 回り込みのための計算式の係数
 #define CIRC_BASE pow(0.6, 1.0 / 20.0)
@@ -28,13 +28,13 @@ const unsigned long TIMEOUT_MS = 5;
 double print_data[32]; 
 
 // ★モータピン 
-int Motor_DIR[4] = {5,2,7,9};
-int Motor_PWM[4] = {4,3,6,8};
+int Motor_DIR[4] = {7,9,2,5};
+int Motor_PWM[4] = {6,8,3,4};
 int speed_pwm = 0; 
 double face_rad = 0.0; 
 int Motor_angle[4] = {45, 135, 225, 315};
 double Motor_rad[4] = {0.0, 0.0, 0.0, 0.0};
-double Motor_rev[4] = {1.4, 1, 1, -1}; 
+double Motor_rev[4] = {1, -1, -1, 1}; 
 double power[4] = {0.0, 0.0, 0.0, 0.0};
 int speed = 0; 
 
@@ -48,6 +48,11 @@ int  blue_angle   = 0;
 int goal_angle = 0;
 
 /////// ir関連 ///////
+
+// --- 三角関数テーブル ---
+float cos_table[32];
+float sin_table[32];
+
 const int PIN_MUX_S0 = 26; 
 const int PIN_MUX_S1 = 27; 
 const int PIN_MUX_S2 = 28; 
@@ -175,7 +180,14 @@ void setup() {
     
     Motor_rad[i] = Motor_angle[i] * M_PI / 180.0;
   }
+
+  for(int i = 0; i < 32; i++){
+    cos_table[i] = cos(11.25 * i * M_PI / 180.0);
+    sin_table[i] = sin(11.25 * i * M_PI / 180.0);
+  }
 }
+
+
 
 // ==========================================
 // モーター出力
@@ -197,7 +209,7 @@ void MotorDrive(int face_angle, int speed_per, int gyro_val) {
   face_rad = face_angle * M_PI / 180.0; 
 
   for (int i = 0; i < 4; i++) {
-    power[i] = (sin(Motor_rad[i] - face_rad) * speed_pwm + gyro_val) * Motor_rev[i];  
+    power[i] = (sin(Motor_rad[i] - face_rad) * speed_pwm + gyro_val*10) * Motor_rev[i];  
   }
 
   double max_val = 0.0;
@@ -271,14 +283,14 @@ void calc_angle(){
   sum_y_all = 0.0;
 
   for (int i = 0; i < 32; i++){
-      sum_x_all += cos(11.25 * i * PI / 180.0) * ir_values[i];
-      sum_y_all += sin(11.25 * i * PI / 180.0) * ir_values[i];
+      sum_x_all += cos_table[i] * ir_values[i]; // ★テーブル参照に変更
+      sum_y_all += sin_table[i] * ir_values[i]; // ★テーブル参照に変更
   }
 
   // 角度
   float rad_all = atan2(sum_y_all, sum_x_all);
-  if (rad_all < 0) rad_all += PI * 2;
-  ir_deg_all = rad_all * 180.0 / PI;
+  if (rad_all < 0) rad_all += M_PI * 2;
+  ir_deg_all = rad_all * 180.0 / M_PI;
 
   ////  検証の結果すべてのセンサーを使う距離計算はうまくいかなかったため、削除 ////
 
@@ -291,24 +303,25 @@ void calc_angle(){
   for (int k = -6; k <= 6; k++){
       int idx = (MAX_pin + k + 32) % 32; // リングバッファ
 
-      sum_x_part += cos(11.25 * idx * PI / 180.0) * ir_values[idx];
-      sum_y_part += sin(11.25 * idx * PI / 180.0) * ir_values[idx];
+      sum_x_part += cos_table[idx] * ir_values[idx]; // ★テーブル参照に変更
+      sum_y_part += sin_table[idx] * ir_values[idx]; // ★テーブル参照に変更
   }
   
   // 角度
   float rad_part = atan2(sum_y_part, sum_x_part);
-  if (rad_part < 0) rad_part += PI * 2;
-  ir_deg_part = rad_part * 180.0 / PI;
+  if (rad_part < 0) rad_part += M_PI * 2;
+  ir_deg_part = rad_part * 180.0 / M_PI;
 
   // 距離 (安全対策)
   double mag_sq_part = sum_x_part * sum_x_part + sum_y_part * sum_y_part;
   if (mag_sq_part > 1.0) {
-    ir_dist_part = log(mag_sq_part) ; 
+    ir_dist_part = log(mag_sq_part); 
   } else {
     ir_dist_part = 0;
   }
   if (ir_dist_part > 20.6) {
-    ir_dist_part = 20.6;}
+    ir_dist_part = 20.6;
+  }
   ir_dist_part = (20.6 - ir_dist_part) * 100;
 }
 
@@ -383,7 +396,7 @@ void camera_read() {
 
     uint32_t startTime = millis();
     while (Serial3.available() < 7) {
-        if (millis() - startTime > 50) return; 
+        if (millis() - startTime > 5) return; 
     }
 
     uint8_t header = Serial3.read();
@@ -451,7 +464,7 @@ void loop() {
       }else{
         line_time = 0;
       }
-      delay(30);
+      delay(3);
     }
     // --- ボール処理 ---
     else if(ball_flag == 1){
@@ -471,7 +484,7 @@ void loop() {
         float move_angle_temp = calc_ang + constrain(calc_ang * circ_exp * CIRC_WEIGHT, -90, 90);
 
         if (abs(move_angle_temp) < 20 && ball_dist < 10) {
-            speed = 150;
+            speed = 80;
         } else {
             speed = 100;
         }
