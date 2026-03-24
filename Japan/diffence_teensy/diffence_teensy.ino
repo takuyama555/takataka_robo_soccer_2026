@@ -496,24 +496,44 @@ void loop() {
     // --- ボール処理 ---
     else if(ball_flag == 1){
         int move_angle = 0;
+        // 変数を使用するためfloatで宣言しておきます
+        float diff = 0.0;
+        float diff_ratio = 0.0;
+        float speed_ratio = 0.0;
+        
+        // モーターが摩擦に負けず回り始める最低数値を設定（要調整）
+        float min_speed = 30.0; 
+        float max_speed = 90.0;
 
-        if (0 <ball_angle && ball_angle < 180) {
+        if (0 < ball_angle && ball_angle < 180) {
             move_angle = 100; 
-            diff = abs(ball_angle - 90);
+            
+            // 正面(0度)からのズレを計算。90度以上離れたら最大スピードで固定する
+            diff = ball_angle;
+            if (diff > 90) diff = 90; 
+
+            // 0.0 〜 1.0 の比率を計算
             diff_ratio = diff / 90.0;
             speed_ratio = diff_ratio * diff_ratio;
-            speed = 90 * speed_ratio;
+            
+            // 最低スピードから最大スピードの間で2次関数カーブを作る
+            speed = min_speed + (max_speed - min_speed) * speed_ratio;
         }
         else if(180 < ball_angle && ball_angle < 340) {
             move_angle = 260;
-            diff = abs(ball_angle - 270);
+            
+            // 正面(360度)からのズレを計算。90度以上は最大スピードで固定
+            diff = 360 - ball_angle;
+            if (diff > 90) diff = 90;
+
             diff_ratio = diff / 90.0;
             speed_ratio = diff_ratio * diff_ratio;
-            speed = 90 * speed_ratio;
-        }else{
+            
+            speed = min_speed + (max_speed - min_speed) * speed_ratio;
+        } else {
+            // ボールが真正面(0度) または 340〜360度の不感帯にあるとき
             speed = 0;
         }
-
 
         MotorDrive(move_angle, speed, gyro_val);
     } else {
