@@ -28,8 +28,8 @@ const unsigned long TIMEOUT_MS = 5;
 double print_data[32]; 
 
 // ★モータピン 
-int Motor_DIR[4] = {7,9,2,5};
-int Motor_PWM[4] = {6,8,3,4};
+int Motor_DIR[4] = {2,5,8,9};
+int Motor_PWM[4] = {3,4,9,8};
 int speed_pwm = 0; 
 double face_rad = 0.0; 
 int Motor_angle[4] = {45, 135, 225, 315};
@@ -46,6 +46,14 @@ int  yellow_angle = 0;
 bool blue_flag   = 0;
 int  blue_angle   = 0;
 int goal_angle = 0;
+
+/// diffence用の変数
+int move_angle = 0;
+float diff = 0.0;
+float diff_ratio = 0.0;
+float speed_ratio = 0.0;
+float min_speed = 20.0; 
+float max_speed = 90.0;
 
 /////// ir関連 ///////
 
@@ -495,16 +503,8 @@ void loop() {
     }
     // --- ボール処理 ---
     else if(ball_flag == 1){
-        int move_angle = 0;
-        // 変数を使用するためfloatで宣言しておきます
-        float diff = 0.0;
-        float diff_ratio = 0.0;
-        float speed_ratio = 0.0;
-        
-        // モーターが摩擦に負けず回り始める最低数値を設定（要調整）
-        float min_speed = 30.0; 
-        float max_speed = 90.0;
-
+        min_speed = 20.0;
+        max_speed = 90.0;
         if (0 < ball_angle && ball_angle < 180) {
             move_angle = 100; 
             

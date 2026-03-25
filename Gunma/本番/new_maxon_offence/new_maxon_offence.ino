@@ -26,8 +26,8 @@ const unsigned long TIMEOUT_MS = 5;
 
 // --- 変数定義 ---
 double print[32];
-int Motor_PWM[4] = {4,6,3,7};
-int Motor_DIR[4] = {2,8,5,9};
+int Motor_PWM[4] = {8,4,9,5};
+int Motor_DIR[4] = {6,2,7,3};
 int speed_pwm = 0; 
 double face_rad = 0.0; 
 int Motor_angle[4] = {45, 135, 225, 315};

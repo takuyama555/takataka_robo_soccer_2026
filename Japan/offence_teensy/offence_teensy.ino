@@ -34,9 +34,10 @@ int speed_pwm = 0;
 double face_rad = 0.0; 
 int Motor_angle[4] = {45, 135, 225, 315};
 double Motor_rad[4] = {0.0, 0.0, 0.0, 0.0};
-double Motor_rev[4] = {1, -1, -1, 1}; 
+double Motor_rev[4] = {1, 1, -1, 1}; 
 double power[4] = {0.0, 0.0, 0.0, 0.0};
 int speed = 0; 
+int move_angle = 0;
 
 int recent_line_angle[10] = {999,999,999,999,999,999,999,999,999,999};
 int line_time = 0;
@@ -46,6 +47,7 @@ int  yellow_angle = 0;
 bool blue_flag   = 0;
 int  blue_angle   = 0;
 int goal_angle = 0;
+float move_angle_temp = 0;
 
 /////// ir関連 ///////
 
@@ -82,7 +84,8 @@ float sum_y_all = 0;
 float sum_x_part = 0;
 float sum_y_part = 0;
 float ball_angle = 0;
-float ball_dist = 0;   
+float ball_dist = 0;
+int hold_flag = 0;   
 
 // --- ジャイロ変数 ---
 MPU6050 mpu;
@@ -330,7 +333,7 @@ void calc_angle(){
   ir_dist_part = (20.6 - ir_dist_part) * 100;
 }
 
-void get_ball_angle(){
+void get_ball_info(){
   sensor_read();
 
   if (ball_flag == 1){ 
@@ -343,12 +346,11 @@ void get_ball_angle(){
   }
 
   if ( ir_dist_part > 40){
-    ball_angle = ir_deg_part;
+    ball_angle = ir_deg_all;
   }else{
     ball_angle = ir_deg_all;
   }
   // 角度から15度引いてズレを直す
-  if (ball_angle < 45 || ball_angle > 315)
   ball_angle -= 15;
   
   // もし引いた結果がマイナスになったら360を足して0〜359度の範囲に戻す
@@ -358,6 +360,14 @@ void get_ball_angle(){
       ball_angle -= 360;
   }
   ball_dist = ir_dist_part;
+
+  if(ball_dist < 1 && (340 < ball_angle || ball_angle < 20)){
+    hold_flag = 1;
+  }else{
+    hold_flag = 0;
+  }
+
+  
 }
 
 // ==========================================
@@ -448,6 +458,7 @@ void camera_read() {
             goal_angle = blue_angle;
         }
     }
+    goal_angle = yellow_angle;
 }
 
 // ==========================================
@@ -459,7 +470,7 @@ void loop() {
 
   if (game_flag == 1){
     line_read();
-    get_ball_angle(); 
+    get_ball_info(); 
     camera_read();
 
     // --- ライン処理 ---
@@ -489,34 +500,32 @@ void loop() {
     else if(ball_flag == 1){
         line_time = 0;
         for (int i = 0; i < 10; i++){
-            recent_line_angle[i] = 999;
+          recent_line_angle[i] = 999;
         }
 
-        int move_angle = 0;
         float calc_ang = ball_angle; 
-
+        float move_angle_temp = 0;
         if (ball_angle > 180) {
-            calc_ang = ball_angle - 360; 
+          calc_ang = ball_angle - 360; 
         }
 
-        if (ball_dist > 50){
-            move_angle = ball_angle;
-            speed = 70;
-        } else {
-        float circ_exp = pow(CIRC_BASE, ball_dist * 2.0);
-        float move_angle_temp = calc_ang + constrain(calc_ang * circ_exp * CIRC_WEIGHT, -90, 90);
-
-        if (abs(move_angle_temp) < 20 && ball_dist < 10) {
-            speed = 80;
-        } else {
-            speed = 80;
+        if (hold_flag == 1){
+          move_angle_temp = goal_angle;
+          speed = 80;
+        } else if(ball_dist > 50) {
+          move_angle_temp = ball_angle;
+          speed = 70;
         }
-
+        else{
+          float circ_exp = pow(CIRC_BASE, ball_dist * 2.0);
+          move_angle_temp = calc_ang + constrain(calc_ang * circ_exp * CIRC_WEIGHT, -90, 90);
+          speed = 80;
+        }
         if (move_angle_temp < 0) {
             move_angle_temp = move_angle_temp + 360;
         }
+
         move_angle = (int)move_angle_temp;
-       }
         MotorDrive(move_angle, speed, gyro_val);
       }else {
         MotorDrive(0, 0, gyro_val);
@@ -529,19 +538,55 @@ void loop() {
       Serial.print(" | Dist:"); Serial.print(ball_dist);
       Serial.print(" | Spd:"); Serial.print(speed); 
       Serial.print(" | Line:"); Serial.print(line_flag);
+      Serial.print(" | IR_dist:"); Serial.print(ball_dist);
       Serial.print(" | Goal_Ang:"); Serial.print(goal_angle);
+      Serial.print(" | move_Ang:"); Serial.print(move_angle);
+      
       Serial.println(); 
     }
     
     // --- ストップボタン ---
     if (digitalRead(buttonOff_Pin) == LOW) {
-        delay(20); 
-        if (digitalRead(buttonOff_Pin) == LOW) {
-          game_start = 0;
-          game_flag = 0;
-          MotorDrive(0, 0, 0); 
-          Serial.println("Game Stop");
-          while(digitalRead(buttonOff_Pin) == LOW) delay(10);
+        if (!btn_off_holding) {
+            btn_off_holding = true;
+            btn_off_hold_start = millis();
+        }
+
+        unsigned long hold_duration = millis() - btn_off_hold_start;
+
+        if (hold_duration > 2000) {
+            // 2秒長押し → コート切り替え
+            my_court = !my_court;
+            btn_off_holding = false;
+            Serial.print("court changed: ");
+            Serial.println(my_court ? "Yellow" : "Blue");
+
+            // 切り替えをLEDで通知（3回素早く点滅）
+            for (int i = 0; i < 3; i++) {
+                digitalWrite(BUILTIN_LED, HIGH); delay(100);
+                digitalWrite(BUILTIN_LED, LOW);  delay(100);
+            }
+
+            while (digitalRead(buttonOff_Pin) == LOW) delay(10); // 離すまで待つ
+
+        } else if (hold_duration > 20 && game_flag == 1) {
+            // 短押し（チャタリング除去後）→ 通常のストップ処理
+            // ※ここでは何もしない。離したときに判定する
+        }
+
+    } else {
+        // ボタンを離したとき
+        if (btn_off_holding) {
+            unsigned long hold_duration = millis() - btn_off_hold_start;
+
+            if (hold_duration >= 20 && hold_duration < 2000 && game_flag == 1) {
+                // 短押し → ゲームストップ
+                game_start = 0;
+                game_flag = 0;
+                MotorDrive(0, 0, 0);
+                Serial.println("Game Stop");
+            }
+            btn_off_holding = false;
         }
     }
 

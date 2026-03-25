@@ -538,7 +538,7 @@ void loop() {
       Serial.print(" | Dist:"); Serial.print(ball_dist);
       Serial.print(" | Spd:"); Serial.print(speed); 
       Serial.print(" | Line:"); Serial.print(line_flag);
-      Serial.print(" | IR_dist:"); Serial.print(ball_dist);
+      Serial.print(" | hold_flag:"); Serial.print(hold_flag);
       Serial.print(" | Goal_Ang:"); Serial.print(goal_angle);
       Serial.print(" | move_Ang:"); Serial.print(move_angle);
       
