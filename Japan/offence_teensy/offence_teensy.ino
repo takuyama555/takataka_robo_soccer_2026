@@ -8,7 +8,6 @@
 //////// GAME MODE (1:デバッグ表示あり, 0:本番用) //////////
 int game_mode = 1;
 
-// 回り込みのための計算式の係数
 #define CIRC_BASE pow(0.6, 1.0 / 20.0)
 #define CIRC_WEIGHT 3.5
 
@@ -16,8 +15,8 @@ int game_mode = 1;
 #define CIRC_SPEED     50
 
 /////// ボタン関連 
-const int buttonOn_Pin = 20;   // BUTTON1
-const int buttonOff_Pin = 21;  // BUTTON2
+const int buttonOn_Pin = 20;
+const int buttonOff_Pin = 21;
 bool game_flag = 0;            
 int game_start = 0;            
 
@@ -28,13 +27,14 @@ const unsigned long TIMEOUT_MS = 5;
 double print_data[32]; 
 
 // ★モータピン 
+// ★モータピン 
 int Motor_DIR[4] = {2,5,8,6};
 int Motor_PWM[4] = {3,4,9,7};
 int speed_pwm = 0; 
 double face_rad = 0.0; 
 int Motor_angle[4] = {45, 135, 225, 315};
 double Motor_rad[4] = {0.0, 0.0, 0.0, 0.0};
-double Motor_rev[4] = {1, 1, -1, 1}; 
+double Motor_rev[4] = {-1, -1, 1, -1};  
 double power[4] = {0.0, 0.0, 0.0, 0.0};
 int speed = 0; 
 int move_angle = 0;
@@ -52,9 +52,12 @@ int yellow_height = 0;
 int blue_height   = 0;
 int goal_height   = 0;
 
-/////// ir関連 ///////
+// ★ 追加：未宣言だった変数
+bool btn_off_holding   = false;
+unsigned long btn_off_hold_start = 0;
+bool my_court = true;  // true = Yellow, false = Blue
 
-// --- 三角関数テーブル ---
+/////// ir関連 ///////
 float cos_table[32];
 float sin_table[32];
 
@@ -65,11 +68,9 @@ const int PIN_MUX_S3 = 29;
 const int PIN_SIG1   = 24; 
 const int PIN_SIG2   = 25; 
 
-// --- 設定 ---
 const int MAX_ADC_VAL = 4095; 
 const int SENSOR_THRESHOLD = 500; 
 
-// --- グローバル変数 ---
 int ir_values[32]; 
 int ball_flag = 0;
 
@@ -105,9 +106,9 @@ int ir_flag = 0;
 int ir_angle = 0;  
 int ir_dist = 255; 
 
-bool escaping_line = false; // 現在ライン回避中かどうか
-int escape_angle = 0;       // 回避するために進むべき方向
-unsigned long line_lost_time = 0; // ラインを見失った時刻
+bool escaping_line = false;
+int escape_angle = 0;
+unsigned long line_lost_time = 0;
 
 int line_flag = 0;   
 int line_angle = 0;  
@@ -168,6 +169,7 @@ void setup() {
   
   pinMode(buttonOn_Pin, INPUT_PULLUP);
   pinMode(buttonOff_Pin, INPUT_PULLUP);
+  pinMode(LED_BUILTIN, OUTPUT);  // ★ BUILTIN_LED → LED_BUILTIN
 
   pinMode(PIN_MUX_S0, OUTPUT);
   pinMode(PIN_MUX_S1, OUTPUT);
@@ -177,8 +179,8 @@ void setup() {
   pinMode(PIN_SIG1, INPUT);
   pinMode(PIN_SIG2, INPUT);
 
-  analogReadResolution(12);  // 0-4095
-  analogWriteResolution(12); // 0-4095でPWM出力
+  analogReadResolution(12);
+  analogWriteResolution(12);
 
   for(int i = 0; i < 4; i++){
     pinMode(Motor_PWM[i], OUTPUT);
@@ -186,7 +188,6 @@ void setup() {
     analogWriteFrequency(Motor_DIR[i], 20000); 
 
     digitalWrite(Motor_PWM[i], HIGH);
-    
     analogWrite(Motor_DIR[i], 2048); 
     
     Motor_rad[i] = Motor_angle[i] * M_PI / 180.0;
@@ -197,8 +198,6 @@ void setup() {
     sin_table[i] = sin(11.25 * i * M_PI / 180.0);
   }
 }
-
-
 
 // ==========================================
 // モーター出力
@@ -220,7 +219,7 @@ void MotorDrive(int face_angle, int speed_per, int gyro_val) {
   face_rad = face_angle * M_PI / 180.0; 
 
   for (int i = 0; i < 4; i++) {
-    power[i] = (sin(Motor_rad[i] - face_rad) * speed_pwm + gyro_val*10) * Motor_rev[i];  
+    power[i] = (sin(Motor_rad[i] - face_rad) * speed_pwm + gyro_val*30) * Motor_rev[i];  
   }
 
   double max_val = 0.0;
@@ -257,13 +256,11 @@ void sensor_read(){
 
     delayMicroseconds(20); 
 
-    // 読み取り (0-15番)
     analogRead(PIN_SIG1); 
     int raw1 = analogRead(PIN_SIG1);
     ir_values[i] = MAX_ADC_VAL - raw1;
     if(ir_values[i] < 0) ir_values[i] = 0;
 
-    // 読み取り (16-31番)
     analogRead(PIN_SIG2); 
     int raw2 = analogRead(PIN_SIG2);
     ir_values[i + 16] = MAX_ADC_VAL - raw2; 
@@ -277,53 +274,38 @@ void sensor_read(){
     }
   }
 
-  if (MAX_value > SENSOR_THRESHOLD){
-    ball_flag = 1;
-  } else {
-    ball_flag = 0;
-  }
+  ball_flag = (MAX_value > SENSOR_THRESHOLD) ? 1 : 0;
 }
 
 // ==========================================
 // 角度計算
 // ==========================================
 void calc_angle(){
-
-  // ---  全センサー計算 (ALL) ---
   sum_x_all = 0.0;
   sum_y_all = 0.0;
 
   for (int i = 0; i < 32; i++){
-      sum_x_all += cos_table[i] * ir_values[i]; // ★テーブル参照に変更
-      sum_y_all += sin_table[i] * ir_values[i]; // ★テーブル参照に変更
+      sum_x_all += cos_table[i] * ir_values[i];
+      sum_y_all += sin_table[i] * ir_values[i];
   }
 
-  // 角度
   float rad_all = atan2(sum_y_all, sum_x_all);
   if (rad_all < 0) rad_all += M_PI * 2;
   ir_deg_all = rad_all * 180.0 / M_PI;
 
-  ////  検証の結果すべてのセンサーを使う距離計算はうまくいかなかったため、削除 ////
-
-
-  // --- 部分センサー計算 (Part) ---
   sum_x_part = 0.0;
   sum_y_part = 0.0;
 
-  // MAX_pinを中心に前後計算
   for (int k = -6; k <= 6; k++){
-      int idx = (MAX_pin + k + 32) % 32; // リングバッファ
-
-      sum_x_part += cos_table[idx] * ir_values[idx]; // ★テーブル参照に変更
-      sum_y_part += sin_table[idx] * ir_values[idx]; // ★テーブル参照に変更
+      int idx = (MAX_pin + k + 32) % 32;
+      sum_x_part += cos_table[idx] * ir_values[idx];
+      sum_y_part += sin_table[idx] * ir_values[idx];
   }
   
-  // 角度
   float rad_part = atan2(sum_y_part, sum_x_part);
   if (rad_part < 0) rad_part += M_PI * 2;
   ir_deg_part = rad_part * 180.0 / M_PI;
 
-  // 距離 (安全対策)
   double mag_sq_part = sum_x_part * sum_x_part + sum_y_part * sum_y_part;
   if (mag_sq_part > 1.0) {
     ir_dist_part = log(mag_sq_part); 
@@ -348,15 +330,9 @@ void get_ball_info(){
     ir_dist_part = 0;
   }
 
-  if ( ir_dist_part > 40){
-    ball_angle = ir_deg_all;
-  }else{
-    ball_angle = ir_deg_all;
-  }
-  // 角度から15度引いてズレを直す
+  ball_angle = ir_deg_all;
   ball_angle -= 15;
   
-  // もし引いた結果がマイナスになったら360を足して0〜359度の範囲に戻す
   if (ball_angle < 0) {
       ball_angle += 360;
   } else if (ball_angle >= 360) {
@@ -369,8 +345,6 @@ void get_ball_info(){
   }else{
     hold_flag = 0;
   }
-
-  
 }
 
 // ==========================================
@@ -408,11 +382,7 @@ void line_read(){
   for (int i = 0; i < 4; i++) {       
     for (int bit = 0; bit < 8; bit++) { 
       int sensor_num = i * 8 + bit;
-      if ( (sensor_raw[i] >> bit) & 1 ) {
-        line_check[sensor_num] = 1;
-      } else {
-        line_check[sensor_num] = 0;
-      }
+      line_check[sensor_num] = (sensor_raw[i] >> bit) & 1;
     }
   }
 }
@@ -421,16 +391,13 @@ void line_read(){
 // ゴール取得
 // ==========================================
 void camera_read() {
-    // 1. リクエスト送信 (253)
     Serial3.write(253); 
 
-    // 2. データの到着を待つ (タイムアウト付き) ★ 7→11バイトに変更
     uint32_t startTime = millis();
     while (Serial3.available() < 11) {
         if (millis() - startTime > 5) return;
     }
 
-    // 3. パケットの読み取り
     uint8_t header = Serial3.read();
     
     if (header == 253) { 
@@ -438,7 +405,7 @@ void camera_read() {
         uint8_t y_low  = Serial3.read();
         uint8_t y_high = Serial3.read();
         yellow_angle = y_low | (y_high << 7);
-        uint8_t yh_low  = Serial3.read(); // ★ 黄色の高さ
+        uint8_t yh_low  = Serial3.read();
         uint8_t yh_high = Serial3.read();
         yellow_height = yh_low | (yh_high << 7);
 
@@ -446,13 +413,13 @@ void camera_read() {
         uint8_t b_low  = Serial3.read();
         uint8_t b_high = Serial3.read();
         blue_angle = b_low | (b_high << 7);
-        uint8_t bh_low  = Serial3.read(); // ★ 青色の高さ
+        uint8_t bh_low  = Serial3.read();
         uint8_t bh_high = Serial3.read();
         blue_height = bh_low | (bh_high << 7);
         
         // --- 判定ロジック：正面に近い方を goal_angle に採用 ---
         goal_angle  = 0;
-        goal_height = 0; // ★
+        goal_height = 0;
 
         if (yellow_flag && blue_flag) {
             int y_dist = min(yellow_angle, abs(360 - yellow_angle));
@@ -460,22 +427,22 @@ void camera_read() {
 
             if (y_dist <= b_dist) {
                 goal_angle  = yellow_angle;
-                goal_height = yellow_height; // ★
+                goal_height = yellow_height;
             } else {
                 goal_angle  = blue_angle;
-                goal_height = blue_height;   // ★
+                goal_height = blue_height;
             }
         } else if (yellow_flag) {
             goal_angle  = yellow_angle;
-            goal_height = yellow_height; // ★
+            goal_height = yellow_height;
         } else if (blue_flag) {
             goal_angle  = blue_angle;
-            goal_height = blue_height;   // ★
+            goal_height = blue_height;
         }
-      }
-      goal_angle = yellow_angle;
-      goal_height = yellow_height;
+    }
+    // ★ 削除：関数末尾で yellow_angle を無条件上書きしていた2行を除去
 }
+
 // ==========================================
 // Main Loop
 // ==========================================
@@ -490,25 +457,21 @@ void loop() {
 
     // --- ライン処理 ---
     if (line_flag == 1) {
-        // 新しくラインを踏んだ、あるいは踏み続けている場合
         if (!escaping_line) {
             escaping_line = true;
-            // 踏んだ瞬間の逆ベクトルを逃げる方向に設定
             escape_angle = line_angle + 180; 
             if (escape_angle >= 360) escape_angle -= 360;
         }
-        line_lost_time = millis(); // 踏んでいる間はタイマーを更新
+        line_lost_time = millis();
         
-        MotorDrive(escape_angle, 100, gyro_val); // 決まった方向に全力で離れる
+        MotorDrive(escape_angle, 100, gyro_val);
         delay(3); 
     } 
     else if (escaping_line) {
-        // センサーは消えたが、まだ「回避モード」中の場合
-        // 完全に離脱したと言い切れるまで（例：100ms間）は逃げ続ける
         if (millis() - line_lost_time < 100) { 
             MotorDrive(escape_angle, 100, gyro_val);
         } else {
-            escaping_line = false; // 十分離れたので回避終了
+            escaping_line = false;
         }
     }
     // --- ボール処理 ---
@@ -526,15 +489,15 @@ void loop() {
 
         if (hold_flag == 1){
           move_angle_temp = goal_angle;
-          speed = 80;
+          speed = 90;
         } else if(ball_dist > 50) {
           move_angle_temp = ball_angle;
-          speed = 70;
+          speed = 90;
         }
         else{
           float circ_exp = pow(CIRC_BASE, ball_dist * 2.0);
           move_angle_temp = calc_ang + constrain(calc_ang * circ_exp * CIRC_WEIGHT, -90, 90);
-          speed = 80;
+          speed = 90;
         }
         if (move_angle_temp < 0) {
             move_angle_temp = move_angle_temp + 360;
@@ -555,8 +518,8 @@ void loop() {
       Serial.print(" | Line:"); Serial.print(line_flag);
       Serial.print(" | IR_dist:"); Serial.print(ball_dist);
       Serial.print(" | Goal_Ang:"); Serial.print(goal_angle);
+      Serial.print(" | Goal_H:"); Serial.print(goal_height);  // ★ 高さも表示
       Serial.print(" | move_Ang:"); Serial.print(move_angle);
-      
       Serial.println(); 
     }
     
@@ -570,32 +533,24 @@ void loop() {
         unsigned long hold_duration = millis() - btn_off_hold_start;
 
         if (hold_duration > 2000) {
-            // 2秒長押し → コート切り替え
             my_court = !my_court;
             btn_off_holding = false;
             Serial.print("court changed: ");
             Serial.println(my_court ? "Yellow" : "Blue");
 
-            // 切り替えをLEDで通知（3回素早く点滅）
             for (int i = 0; i < 3; i++) {
-                digitalWrite(BUILTIN_LED, HIGH); delay(100);
-                digitalWrite(BUILTIN_LED, LOW);  delay(100);
+                digitalWrite(LED_BUILTIN, HIGH); delay(100);  // ★ BUILTIN_LED → LED_BUILTIN
+                digitalWrite(LED_BUILTIN, LOW);  delay(100);
             }
 
-            while (digitalRead(buttonOff_Pin) == LOW) delay(10); // 離すまで待つ
-
-        } else if (hold_duration > 20 && game_flag == 1) {
-            // 短押し（チャタリング除去後）→ 通常のストップ処理
-            // ※ここでは何もしない。離したときに判定する
+            while (digitalRead(buttonOff_Pin) == LOW) delay(10);
         }
 
     } else {
-        // ボタンを離したとき
         if (btn_off_holding) {
             unsigned long hold_duration = millis() - btn_off_hold_start;
 
             if (hold_duration >= 20 && hold_duration < 2000 && game_flag == 1) {
-                // 短押し → ゲームストップ
                 game_start = 0;
                 game_flag = 0;
                 MotorDrive(0, 0, 0);
@@ -626,6 +581,7 @@ void loop() {
          game_start = 0;
          game_flag = 1;
          Serial.println("GO! Game Start!");
+         
       }
     } else {
        delay(100);
