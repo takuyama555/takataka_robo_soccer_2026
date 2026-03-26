@@ -42,9 +42,15 @@ int  yellow_angle = 0;
 bool blue_flag   = 0;
 int  blue_angle   = 0;
 int goal_angle = 0;
+<<<<<<< HEAD
 int goal_height = 0;
 int blue_height =0;
 int yellow_height =0;
+=======
+int yellow_height = 0;
+int blue_height   = 0;
+int goal_height   = 0;
+>>>>>>> 871c9ef279320e168eba4fc3a95716801d6abed9
 
 // --- ジャイロ変数 ---
 MPU6050 mpu;
@@ -199,8 +205,19 @@ void line_read(){
   }
 }
 
+<<<<<<< HEAD
+=======
+// ==========================================
+// ゴール取得 
+// ==========================================
+>>>>>>> 871c9ef279320e168eba4fc3a95716801d6abed9
 void camera_read() {
     Serial3.write(253); 
+<<<<<<< HEAD
+=======
+
+    // 2. データの到着を待つ (タイムアウト付き) 
+>>>>>>> 871c9ef279320e168eba4fc3a95716801d6abed9
     uint32_t startTime = millis();
     while (Serial3.available() < 11) {
         if (millis() - startTime > 5) return;
@@ -208,6 +225,7 @@ void camera_read() {
     uint8_t header = Serial3.read();
     if (header == 253) { 
         yellow_flag = (Serial3.read() == 1);
+<<<<<<< HEAD
         yellow_angle = Serial3.read() | (Serial3.read() << 7);
         yellow_height = Serial3.read() | (Serial3.read() << 7);
         blue_flag = (Serial3.read() == 1);
@@ -220,6 +238,48 @@ void camera_read() {
         if (goal_height >= 70) goal_height = 70;
     }
 }
+=======
+        uint8_t y_low  = Serial3.read();
+        uint8_t y_high = Serial3.read();
+        yellow_angle = y_low | (y_high << 7);
+        uint8_t yh_low  = Serial3.read(); // ★ 黄色の高さ
+        uint8_t yh_high = Serial3.read();
+        yellow_height = yh_low | (yh_high << 7);
+
+        blue_flag = (Serial3.read() == 1);
+        uint8_t b_low  = Serial3.read();
+        uint8_t b_high = Serial3.read();
+        blue_angle = b_low | (b_high << 7);
+        uint8_t bh_low  = Serial3.read(); // ★ 青色の高さ
+        uint8_t bh_high = Serial3.read();
+        blue_height = bh_low | (bh_high << 7);
+        
+        // --- 判定ロジック：正面に近い方を goal_angle に採用 ---
+        goal_angle  = 0;
+        goal_height = 0; // ★
+
+        if (yellow_flag && blue_flag) {
+            int y_dist = min(yellow_angle, abs(360 - yellow_angle));
+            int b_dist = min(blue_angle,   abs(360 - blue_angle));
+
+            if (y_dist <= b_dist) {
+                goal_angle  = yellow_angle;
+                goal_height = yellow_height; // ★
+            } else {
+                goal_angle  = blue_angle;
+                goal_height = blue_height;   // ★
+            }
+        } else if (yellow_flag) {
+            goal_angle  = yellow_angle;
+            goal_height = yellow_height; // ★
+        } else if (blue_flag) {
+            goal_angle  = blue_angle;
+            goal_height = blue_height;   // ★
+        }
+    }
+}
+
+>>>>>>> 871c9ef279320e168eba4fc3a95716801d6abed9
 
 // ==========================================
 // Main Loop
