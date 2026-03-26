@@ -6,7 +6,7 @@
 #define gryo_p 0.8 
 
 //////// GAME MODE (1:デバッグ表示あり, 0:本番用) //////////
-int game_mode = 1;
+int game_mode = 0;
 
 // 回り込みのための計算式の係数
 #define CIRC_BASE pow(0.6, 1.0 / 20.0)
@@ -255,7 +255,7 @@ void camera_read() {
     // 2. データの到着を待つ (タイムアウト付き)
     uint32_t startTime = millis();
     while (Serial3.available() < 7) {
-        if (millis() - startTime > 50) return; // 50ms待っても来なければ中断
+        if (millis() - startTime > 5) return; // 50ms待っても来なければ中断
     }
 
     // 3. パケットの読み取り
@@ -293,10 +293,7 @@ void camera_read() {
     }
 } // ← ここでしっかり関数を閉じる
 
-// ==========================================
-// Main Loop
-// ==========================================
-// (この後に void loop() が続く...)
+
 // ==========================================
 // Main Loop
 // ==========================================
@@ -321,7 +318,7 @@ void loop()
         line_angle = recent_line_angle[line_time - 1];
       }
     }
-      MotorDrive(line_angle + 180, 70, gryo_val);
+      MotorDrive(line_angle + 180, 200, gryo_val);
     if(line_time < 10){
       line_time ++;
     }else{
@@ -330,35 +327,28 @@ void loop()
       delay(30);
     }
     else if(ir_flag == 1){
-        line_time = 0;
-        for (int i = 0; i < 10; i++){
-            recent_line_angle[i] = 999;
-        }
 
         int move_angle = 0;
-        float calc_angle = ir_angle;
-        //calc_angleを0から180,0から-180に設定
-        if (ir_angle > 180) {
-            calc_angle = ir_angle - 360; 
-          }
+        int min_pow = 15;
         
-        // base(0.6)^ir_dist にすることで、距離が遠いほどほぼ直線になる
-        float circ_exp = pow(CIRC_BASE, ir_dist * 2.0);
-        // calc_angleを使うことで、左にあるときはマイナスの補正がかかるようになる
-        float move_angle_temp = calc_angle + constrain(calc_angle * circ_exp * CIRC_WEIGHT, -90, 90);
-
-        if (abs(move_angle_temp) < 20 && ir_dist < 10) {
-            speed = 150;
-           // move_angle = goal_angle; // ゴールの方向に向かう
+        // --- 写真の数式に基づくスピード計算の追加 ---
+        if (ir_angle >= 0 && ir_angle <= 90) {
+            // 0度 ~ 90度の場合 (左): V = (theta / 90)^2 * 100
+            speed = min_pow + pow(ir_angle / 90.0, 1.5) * (150 - min_pow);
+        } else if (ir_angle >= 270 && ir_angle <= 360) {
+            // 270度 ~ 360度の場合 (右): V = ((theta - 360) / 90)^2 * 100
+            speed = min_pow + pow(abs(ir_angle - 360.0) / 90.0, 1.5) *  (150 - min_pow);
         } else {
-            speed = 100;
+            // それ以外の範囲のデフォルトスピード
+            speed = 150;
+        }
+        
+        if ( 0< ir_angle && ir_angle < 180){
+          move_angle = 90;
+        }else{
+          move_angle = 270;
         }
 
-        ///0から360に変換
-        if (move_angle_temp < 0) {
-            move_angle_temp = move_angle_temp + 360;
-        }
-        move_angle = (int)move_angle_temp;
 
         MotorDrive(move_angle, speed, gryo_val);
     } else {
