@@ -51,6 +51,8 @@ float move_angle_temp = 0;
 int yellow_height = 0;
 int blue_height   = 0;
 int goal_height   = 0;
+int ir_pin1 = 39;
+int ir_pin2 = 38; 
 
 // ★ 追加：未宣言だった変数
 bool btn_off_holding   = false;
@@ -330,14 +332,8 @@ void get_ball_info(){
     ir_dist_part = 0;
   }
 
-  ball_angle = ir_deg_all;
-  ball_angle -= 15;
-  
-  if (ball_angle < 0) {
-      ball_angle += 360;
-  } else if (ball_angle >= 360) {
-      ball_angle -= 360;
-  }
+  ball_angle = ir_deg_part;
+
   ball_dist = ir_dist_part;
 
   if(ball_dist < 1 && (340 < ball_angle || ball_angle < 20)){
