@@ -8,6 +8,9 @@
 //////// GAME MODE (1:デバッグ表示あり, 0:本番用) //////////
 int game_mode = 1;
 
+/////// どのゴールを認識するかの設定 ////////
+bool yellow_court = true;  // true = Yellow, false = Blue
+
 #define CIRC_BASE pow(0.6, 1.0 / 20.0)
 #define CIRC_WEIGHT 3.5
 
@@ -26,7 +29,6 @@ const unsigned long TIMEOUT_MS = 5;
 // --- 変数定義 ---
 double print_data[32]; 
 
-// ★モータピン 
 // ★モータピン 
 int Motor_DIR[4] = {2,5,8,6};
 int Motor_PWM[4] = {3,4,9,7};
@@ -51,13 +53,15 @@ float move_angle_temp = 0;
 int yellow_height = 0;
 int blue_height   = 0;
 int goal_height   = 0;
-int ir_pin1 = 39;
-int ir_pin2 = 38; 
 
-// ★ 追加：未宣言だった変数
+int ir_pin_1 = 39;
+int ir_pin_2 = 38; 
+int ir1 = 0;
+int ir2 = 0;
+
+
 bool btn_off_holding   = false;
 unsigned long btn_off_hold_start = 0;
-bool yellow_court = true;  // true = Yellow, false = Blue
 
 /////// ir関連 ///////
 float cos_table[32];
@@ -333,13 +337,14 @@ void get_ball_info(){
   }
 
   ball_angle = ir_deg_part;
-
   ball_dist = ir_dist_part;
+  hold_flag = 0;
 
-  if(ball_dist < 1 && (340 < ball_angle || ball_angle < 20)){
-    hold_flag = 1;
-  }else{
-    hold_flag = 0;
+  // ボール保持判定
+  ir1 = analogRead(ir_pin_1);
+  ir2 = analogRead(ir_pin_2);
+  if (ir1 < 750 || ir2 < 750) {
+     hold_flag = 1;
   }
 }
 
@@ -523,6 +528,9 @@ void loop() {
       Serial.print(" | Goal_Ang:"); Serial.print(goal_angle);
       Serial.print(" | Goal_H:"); Serial.print(goal_height);  // ★ 高さも表示
       Serial.print(" | move_Ang:"); Serial.print(move_angle);
+      Serial.print(" | ir1:"); Serial.print(ir1);
+      Serial.print(" | ir2:"); Serial.print(ir2);
+      Serial.print(" | hold:"); Serial.print(hold_flag);
       Serial.println(); 
     }
     

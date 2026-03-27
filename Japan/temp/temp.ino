@@ -7,6 +7,11 @@
 
 //////// GAME MODE (1:デバッグ表示あり, 0:本番用) //////////
 int game_mode = 1; 
+
+///////攻めるコートの設定　////////
+bool yellow_court = true;  // true = Yellow, false = Blue
+
+
 // 回り込みのための計算式の係数
 #define CIRC_BASE pow(0.6, 1.0 / 20.0)
 #define CIRC_WEIGHT 3.5
@@ -67,7 +72,7 @@ int line_check[32];
 
 bool btn_off_holding   = false;
 unsigned long btn_off_hold_start = 0;
-bool yellow_court = true;  // true = Yellow, false = Blue
+
 
 // ==========================================
 // ジャイロ初期化
@@ -322,30 +327,27 @@ void loop()
             } else {
                 speed = 150;
             }
-
-            // --- 2. ゴール角度による制限 ---
-            if ((goal_angle >= 210 && ir_angle < 180 ) || (goal_angle <= 155 && ir_angle >= 180)) {
-                speed = 0;
-            }
             
-            // --- 3. 移動(x軸)方向の決定---
+            // --- 2. 移動(x軸)方向の決定---
             if (ir_angle > 0 && ir_angle < 180){
               go_x = speed;
             } else {
               go_x = speed * -1;
             }
             
-            // ---4.移動(y軸)方向の決定---
-            go_y = pow((70 - goal_height) / 10, 2) * goal_weight;
+            // ---3.移動(y軸)方向の決定---
+            go_y = pow((70 - goal_height) / 10, 1.5) * goal_weight; 
+                                           //////↑ここ2乗にしないで!!!!!!!
+            // ---4.ベクトル合成---
+            move_angle = atan2(go_y,go_x) * 180 /M_PI ;　//tanで角度計算
+            speed = sqrt(go_y * go_y + go_x * go_x) //3平方で速度計算
 
-            // ---5.ベクトル合成---
-            move_angle = atan2(go_y,go_x) * 180 /M_PI ;　//
-
+            // --- 5. ゴール角度による制限 ---
+            if ((goal_angle >= 210 && ir_angle < 180 ) || (goal_angle <= 155 && ir_angle >= 180)) {
+                speed = 0;
+            }
         }
-
         MotorDrive(move_angle, speed, gryo_val);
-
-
     } else {
         MotorDrive(0, 0, gryo_val);
     }
