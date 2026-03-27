@@ -318,10 +318,10 @@ void calc_angle(){
   } else {
     ir_dist_part = 0;
   }
-  if (ir_dist_part > 20.6) {
-    ir_dist_part = 20.6;
+  if (ir_dist_part > 20.63) {
+    ir_dist_part = 20.63;
   }
-  ir_dist_part = (20.6 - ir_dist_part) * 100;
+  ir_dist_part = (20.63 - ir_dist_part) * 100;
 }
 
 void get_ball_info(){
@@ -336,7 +336,7 @@ void get_ball_info(){
     ir_dist_part = 0;
   }
 
-  ball_angle = ir_deg_part;
+  ball_angle = ir_deg_all;
   ball_dist = ir_dist_part;
   hold_flag = 0;
 
