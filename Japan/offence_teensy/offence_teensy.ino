@@ -55,7 +55,7 @@ int goal_height   = 0;
 // ★ 追加：未宣言だった変数
 bool btn_off_holding   = false;
 unsigned long btn_off_hold_start = 0;
-bool my_court = true;  // true = Yellow, false = Blue
+bool yellow_court = true;  // true = Yellow, false = Blue
 
 /////// ir関連 ///////
 float cos_table[32];
@@ -391,13 +391,16 @@ void line_read(){
 // ゴール取得
 // ==========================================
 void camera_read() {
+    // 1. リクエスト送信 (253)
     Serial3.write(253); 
 
+    // 2. データの到着を待つ (タイムアウト付き) 
     uint32_t startTime = millis();
     while (Serial3.available() < 11) {
         if (millis() - startTime > 5) return;
     }
 
+    // 3. パケットの読み取り
     uint8_t header = Serial3.read();
     
     if (header == 253) { 
@@ -405,7 +408,7 @@ void camera_read() {
         uint8_t y_low  = Serial3.read();
         uint8_t y_high = Serial3.read();
         yellow_angle = y_low | (y_high << 7);
-        uint8_t yh_low  = Serial3.read();
+        uint8_t yh_low  = Serial3.read(); // ★ 黄色の高さ
         uint8_t yh_high = Serial3.read();
         yellow_height = yh_low | (yh_high << 7);
 
@@ -413,7 +416,7 @@ void camera_read() {
         uint8_t b_low  = Serial3.read();
         uint8_t b_high = Serial3.read();
         blue_angle = b_low | (b_high << 7);
-        uint8_t bh_low  = Serial3.read();
+        uint8_t bh_low  = Serial3.read(); // ★ 青色の高さ
         uint8_t bh_high = Serial3.read();
         blue_height = bh_low | (bh_high << 7);
         
@@ -421,26 +424,30 @@ void camera_read() {
         goal_angle  = 0;
         goal_height = 0;
 
-        if (yellow_flag && blue_flag) {
-            int y_dist = min(yellow_angle, abs(360 - yellow_angle));
-            int b_dist = min(blue_angle,   abs(360 - blue_angle));
-
-            if (y_dist <= b_dist) {
+        if (yellow_court == true) { // 黄色ゴール攻めの時
+            if(yellow_flag == 1){
                 goal_angle  = yellow_angle;
                 goal_height = yellow_height;
-            } else {
+            }else if(blue_flag == 1){
+                goal_angle  = blue_angle-180;
+                goal_height = 1;
+            }else{
+                goal_angle  = 0;
+                goal_height = 0; 
+            }
+        }else{  // 青色ゴール攻めの時
+            if(blue_flag == 1){
                 goal_angle  = blue_angle;
                 goal_height = blue_height;
+            }else if(yellow_flag == 1){
+                goal_angle  = yellow_angle-180;
+                goal_height = 1;
+            }else{
+                goal_angle  = 0;
+                goal_height = 0;  
             }
-        } else if (yellow_flag) {
-            goal_angle  = yellow_angle;
-            goal_height = yellow_height;
-        } else if (blue_flag) {
-            goal_angle  = blue_angle;
-            goal_height = blue_height;
         }
     }
-    // ★ 削除：関数末尾で yellow_angle を無条件上書きしていた2行を除去
 }
 
 // ==========================================
@@ -533,10 +540,10 @@ void loop() {
         unsigned long hold_duration = millis() - btn_off_hold_start;
 
         if (hold_duration > 2000) {
-            my_court = !my_court;
+            yellow_court = !yellow_court;
             btn_off_holding = false;
             Serial.print("court changed: ");
-            Serial.println(my_court ? "Yellow" : "Blue");
+            Serial.println(yellow_court ? "Yellow" : "Blue");
 
             for (int i = 0; i < 3; i++) {
                 digitalWrite(LED_BUILTIN, HIGH); delay(100);  // ★ BUILTIN_LED → LED_BUILTIN
