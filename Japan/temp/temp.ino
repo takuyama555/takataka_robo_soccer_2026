@@ -2,7 +2,7 @@
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "Wire.h"
-
+/////iiiii
 #define gryo_p 0.8 
 
 //////// GAME MODE (1:デバッグ表示あり, 0:本番用) //////////
