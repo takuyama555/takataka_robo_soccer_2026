@@ -1,4 +1,4 @@
-#include <math.h> 
+#include <math.h>
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "Wire.h"
@@ -42,12 +42,12 @@ int recent_line_angle[10] = {999,999,999,999,999,999,999,999,999,999};
 int line_time = 0;
 bool yellow_flag = 0;
 int  yellow_angle = 0;
-bool blue_flag   = 0;
-int  blue_angle   = 0;
+bool blue_flag = 0;
+int  blue_angle = 0;
 int goal_angle = 0;
 int yellow_height = 0;
-int blue_height   = 0;
-int goal_height   = 0;
+int blue_height = 0;
+int goal_height = 0;
 int posi = 0; // 0:ゴールから遠い, 1:ニュートラルポジション, 2:ゴールに近い
 int neutral_flag = 0; // ニュートラルポジションについたかどうかのフラグ
 
@@ -315,19 +315,22 @@ void loop()
       MotorDrive(line_angle + 180, 200, gryo_val);
       line_time = (line_time < 9) ? line_time + 1 : 0;
       delay(30);
-    }else if(posi == 0){ ///ゴールから遠いとき
+    }
+    else if(posi == 0){ ///ゴールから遠いとき
       if(goal_flag == 0){
         MotorDrive(180, 80, gryo_val);
       }else{
         MotorDrive(goal_angle, 80, gryo_val);
       }
-    }else if(posi == 2){  ///ゴールに近すぎるとき
+    }
+    else if(posi == 2){  ///ゴールに近すぎるとき
       MotorDrive(0, 80, gryo_val);
 
-    }else if(ir_flag == 1){
+    }
+    else if(ir_flag == 1){
         int move_angle = 0;
         int min_pow = 15;
-        int goal_weight = 40; // ゴールへの重み
+        int goal_weight = 30; // ゴールへの重み
         float go_x = 0;
         float go_y = 0;
 
@@ -353,11 +356,12 @@ void loop()
               //move_angle = 270;
             }
             
-            // // ---3.移動(y軸)方向の決定---
-             go_y = pow((70 - goal_height) / 10, 1.5) * goal_weight; 
-                                            //////↑ここ2乗にしないで!!!!!!!
-            // // ---4.ベクトル合成---
-             move_angle = atan2(go_y,go_x) * 180 /M_PI ;　//tanで角度計算
+            // ---3.移動(y軸)方向の決定---
+            go_y = pow((70 - goal_height) / 10, 1.5) * goal_weight; 
+                                          //////　↑ここ2乗にしないで!!!!!!! ///////
+
+            // ---4.ベクトル合成---
+            move_angle = atan2(go_y,go_x) * 180 /M_PI ;　//tanで角度計算
 
             // --- 5. ゴール角度による制限 ---
             if (goal_flag == 1 && ((goal_angle >= 210 && goal_angle < 360) && ir_angle < 180)) {
@@ -378,6 +382,7 @@ void loop()
       Serial.print(" | Spd:"); Serial.print(speed);
       Serial.print(" | GAng:"); Serial.print(goal_angle);
       Serial.print(" | GHgt:"); Serial.println(goal_height);
+      Serial.print(" | Posi:"); Serial.println(posi);
     }
     
     // --- ストップボタン処理 ---
@@ -434,4 +439,4 @@ void loop()
        delay(100);
     }
   }
-}
+}x

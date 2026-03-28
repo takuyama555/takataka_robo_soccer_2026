@@ -45,6 +45,7 @@ int goal_angle = 0;
 int yellow_height = 0;
 int blue_height   = 0;
 int goal_height   = 0;
+int goal_flag = 0; // 0:ゴールなし, 1:ゴールあり
 
 // --- ジャイロ変数 ---
 MPU6050 mpu;
@@ -226,27 +227,13 @@ void camera_read() {
         blue_height = bh_low | (bh_high << 7);
         
         // --- 判定ロジック：正面に近い方を goal_angle に採用 ---
-        goal_angle  = 0;
-        goal_height = 0; // ★
-
-        if (yellow_flag && blue_flag) {
-            int y_dist = min(yellow_angle, abs(360 - yellow_angle));
-            int b_dist = min(blue_angle,   abs(360 - blue_angle));
-
-            if (y_dist <= b_dist) {
-                goal_angle  = yellow_angle;
-                goal_height = yellow_height; // ★
-            } else {
-                goal_angle  = blue_angle;
-                goal_height = blue_height;   // ★
-            }
-        } else if (yellow_flag) {
-            goal_angle  = yellow_angle;
-            goal_height = yellow_height; // ★
-        } else if (blue_flag) {
-            goal_angle  = blue_angle;
-            goal_height = blue_height;   // ★
+        goal_angle  = yellow_angle; // デフォルトは黄色
+        goal_height = yellow_height; // ★
+        if(yellow_flag == 1||blue_flag == 1){
+         goal_flag = 1;
         }
+    }else{
+        goal_flag = 0;
     }
 }
 
@@ -290,8 +277,11 @@ void loop()
         }
 
         // --- 2. ゴール角度による制限 ---
-        if ((goal_angle >= 210 && ir_angle < 180 ) || (goal_angle <= 155 && ir_angle >= 180)) {
-            speed = 0;
+        if (goal_flag == 1 && ((goal_angle >= 210 && goal_angle < 360) && ir_angle < 180)) {
+          speed = 0;
+        }
+        else if (goal_flag == 1 && ((goal_angle >= 0 && ir_angle < 150) && ir_angle >= 180)){
+          speed = 0;
         }
         
         // --- 3. 移動方向の決定 ---
