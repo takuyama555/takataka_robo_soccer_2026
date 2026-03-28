@@ -42,15 +42,9 @@ int  yellow_angle = 0;
 bool blue_flag   = 0;
 int  blue_angle   = 0;
 int goal_angle = 0;
-<<<<<<< HEAD
-int goal_height = 0;
-int blue_height =0;
-int yellow_height =0;
-=======
 int yellow_height = 0;
 int blue_height   = 0;
 int goal_height   = 0;
->>>>>>> 871c9ef279320e168eba4fc3a95716801d6abed9
 
 // --- ジャイロ変数 ---
 MPU6050 mpu;
@@ -205,19 +199,10 @@ void line_read(){
   }
 }
 
-<<<<<<< HEAD
-=======
-// ==========================================
-// ゴール取得 
-// ==========================================
->>>>>>> 871c9ef279320e168eba4fc3a95716801d6abed9
 void camera_read() {
     Serial3.write(253); 
-<<<<<<< HEAD
-=======
 
     // 2. データの到着を待つ (タイムアウト付き) 
->>>>>>> 871c9ef279320e168eba4fc3a95716801d6abed9
     uint32_t startTime = millis();
     while (Serial3.available() < 11) {
         if (millis() - startTime > 5) return;
@@ -225,20 +210,6 @@ void camera_read() {
     uint8_t header = Serial3.read();
     if (header == 253) { 
         yellow_flag = (Serial3.read() == 1);
-<<<<<<< HEAD
-        yellow_angle = Serial3.read() | (Serial3.read() << 7);
-        yellow_height = Serial3.read() | (Serial3.read() << 7);
-        blue_flag = (Serial3.read() == 1);
-        blue_angle = Serial3.read() | (Serial3.read() << 7);
-        blue_height = Serial3.read() | (Serial3.read() << 7);
-
-        goal_angle = yellow_angle;
-        goal_height = yellow_height;
-        // ★高さが70以上なら70に戻す
-        if (goal_height >= 70) goal_height = 70;
-    }
-}
-=======
         uint8_t y_low  = Serial3.read();
         uint8_t y_high = Serial3.read();
         yellow_angle = y_low | (y_high << 7);
@@ -279,7 +250,6 @@ void camera_read() {
     }
 }
 
->>>>>>> 871c9ef279320e168eba4fc3a95716801d6abed9
 
 // ==========================================
 // Main Loop

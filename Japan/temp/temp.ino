@@ -312,7 +312,7 @@ void loop()
     }else if(ir_flag == 1){
         int move_angle = 0;
         int min_pow = 15;
-        int goal_weight = 80; // ゴールへの重み
+        int goal_weight = 40; // ゴールへの重み
         float go_x = 0;
         float go_y = 0;
         if(posi == 1){ // ニュートラルポジションの時
@@ -331,20 +331,25 @@ void loop()
             // --- 2. 移動(x軸)方向の決定---
             if (ir_angle > 0 && ir_angle < 180){
               go_x = speed;
+              //move_angle = 90;
             } else {
               go_x = speed * -1;
+              //move_angle = 270;
             }
             
-            // ---3.移動(y軸)方向の決定---
-            go_y = pow((70 - goal_height) / 10, 1.5) * goal_weight; 
-                                           //////↑ここ2乗にしないで!!!!!!!
-            // ---4.ベクトル合成---
-            move_angle = atan2(go_y,go_x) * 180 /M_PI ;　//tanで角度計算
-            speed = sqrt(go_y * go_y + go_x * go_x) //3平方で速度計算
+            // // ---3.移動(y軸)方向の決定---
+             go_y = pow((70 - goal_height) / 10, 1.5) * goal_weight; 
+                                            //////↑ここ2乗にしないで!!!!!!!
+            // // ---4.ベクトル合成---
+             move_angle = atan2(go_y,go_x) * 180 /M_PI ;　//tanで角度計算
+             speed = sqrt(go_y * go_y + go_x * go_x) //3平方で速度計算
 
             // --- 5. ゴール角度による制限 ---
-            if ((goal_angle >= 210 && ir_angle < 180 ) || (goal_angle <= 155 && ir_angle >= 180)) {
-                speed = 0;
+            if (goal_flag == 1 && ((goal_angle >= 210 && goal_angle < 360) && ir_angle < 180)) {
+              speed = 0;
+            }
+            else if (goal_flag == 1 && ((goal_angle >= 0 && ir_angle < 150) && ir_angle >= 180)){
+              speed = 0;
             }
         }
         MotorDrive(move_angle, speed, gryo_val);
