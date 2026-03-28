@@ -2,7 +2,6 @@
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "Wire.h"
-/////iiiii
 #define gryo_p 0.8 
 
 //////// GAME MODE (1:デバッグ表示あり, 0:本番用) //////////
@@ -50,6 +49,7 @@ int yellow_height = 0;
 int blue_height   = 0;
 int goal_height   = 0;
 int posi = 0; // 0:ゴールから遠い, 1:ニュートラルポジション, 2:ゴールに近い
+int neutral_flag = 0; // ニュートラルポジションについたかどうかのフラグ
 
 // --- ジャイロ変数 ---
 MPU6050 mpu;
@@ -282,14 +282,29 @@ void loop()
     camera_read();
 
     ///////////////////ポジションの判定/////////////////////
-    if(goal_height < 60){
-      posi = 0; // ゴールから遠い
-    }else if(goal_height >= 60 && goal_height < 80){
-      posi = 1; // ニュートラル
-    }else if(goal_height >= 80){
-      posi = 2; // ゴールに近すぎる
+    
+    //////////////////初期ニュートラルフラグの時///////////////////
+    if(neutral_flag == 0){
+      if(goal_height < 60){
+        posi = 0; // ゴールから遠い
+      }else if(goal_height >= 60 && goal_height < 80){
+        posi = 1;  // ニュートラルポジション
+      }else if(goal_height >= 80){
+        posi = 2; // ゴールに近すぎる
+      }
     }
-    ////////////////////////////////////////////////////////
+    ///////////////ニュートラルフラグが立っているときの処理/////////////////
+    else if(neutral_flag == 1){
+      if(goal_height < 50){
+        posi = 0; // ゴールから遠い
+        neutral_flag = 0; // ニュートラルフラグリセット
+      }else if(goal_height >= 50 && goal_height < 90){
+        posi = 1;  // ニュートラルポジション
+      }else if(goal_height >= 90){
+        posi = 2; // ゴールに近すぎる
+      }
+    }
+    /////////////////////////////////////////////////////////////////////////////// 
 
     if (line_flag == 1){
       recent_line_angle[line_time] = line_angle;
@@ -315,6 +330,7 @@ void loop()
         int goal_weight = 40; // ゴールへの重み
         float go_x = 0;
         float go_y = 0;
+
         if(posi == 1){ // ニュートラルポジションの時
 
             // --- 1. スピード計算 ---
@@ -342,7 +358,6 @@ void loop()
                                             //////↑ここ2乗にしないで!!!!!!!
             // // ---4.ベクトル合成---
              move_angle = atan2(go_y,go_x) * 180 /M_PI ;　//tanで角度計算
-             speed = sqrt(go_y * go_y + go_x * go_x) //3平方で速度計算
 
             // --- 5. ゴール角度による制限 ---
             if (goal_flag == 1 && ((goal_angle >= 210 && goal_angle < 360) && ir_angle < 180)) {
