@@ -11,14 +11,14 @@ sensor.set_framesize(sensor.VGA)
 # --- カメラの明るさ・色設定 ---
 target_exposure = 40000
 sensor.set_auto_exposure(False, exposure_us=target_exposure)
-sensor.set_auto_gain(False, gain_db=10)
+sensor.set_auto_gain(False, gain_db=18)
 sensor.set_auto_whitebal(False, rgb_gain_db=(60, 58, 61))
 
 # --- 設定エリア ---
-yellow_threshold = (49, 75, 0, 19, 127, -3)
-blue_threshold = (19, 46, -103, 3, -24, -13)
+yellow_threshold = (76, 35, -6, 26, 55, 21)
+blue_threshold   = (33, 20, -10, 127, -7, -83)
 center_x = 335
-center_y = 240
+center_y = 230
 
 def get_angle(blob):
     dx = blob.cx() - center_x
