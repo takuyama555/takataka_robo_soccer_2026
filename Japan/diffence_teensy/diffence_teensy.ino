@@ -28,8 +28,8 @@ const unsigned long TIMEOUT_MS = 5;
 double print_data[32]; 
 
 // ★モータピン 
-int Motor_DIR[4] = {2,5,8,9};
-int Motor_PWM[4] = {3,4,9,8};
+int Motor_DIR[4] = {2,5,7,9};
+int Motor_PWM[4] = {3,4,6,8};
 int speed_pwm = 0; 
 double face_rad = 0.0; 
 int Motor_angle[4] = {45, 135, 225, 315};

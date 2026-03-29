@@ -35,7 +35,7 @@ int speed_pwm = 0;
 double face_rad = 0.0; 
 int Motor_angle[4] = {45, 135, 225, 315};
 double Motor_rad[4] = {0.0, 0.0, 0.0, 0.0};
-double Motor_rev[4] = {1, 1, -1, 1}; // 反転調整
+double Motor_rev[4] = {-1, 1, 1, 1}; // 反転調整
 double power[4] = {0.0, 0.0, 0.0, 0.0};
 int speed = 0; 
 int recent_line_angle[10] = {999,999,999,999,999,999,999,999,999,999};
@@ -48,6 +48,7 @@ int goal_angle = 0;
 int yellow_height = 0;
 int blue_height = 0;
 int goal_height = 0;
+int goal_flag = 0;
 int posi = 0; // 0:ゴールから遠い, 1:ニュートラルポジション, 2:ゴールに近い
 int neutral_flag = 0; // ニュートラルポジションについたかどうかのフラグ
 
@@ -295,6 +296,7 @@ void loop()
         posi = 0; // ゴールから遠い
       }else if(goal_height >= 60 && goal_height < 80){
         posi = 1;  // ニュートラルポジション
+        neutral_flag = 1; // ニュートラルフラグ立てる
       }else if(goal_height >= 80){
         posi = 2; // ゴールに近すぎる
       }
@@ -364,10 +366,10 @@ void loop()
             
             // ---3.移動(y軸)方向の決定---
             go_y = pow((70 - goal_height) / 10, 1.5) * goal_weight; 
-                                          //////　↑ここ2乗にしないで!!!!!!! ///////
+                                         //////　↑ここ2乗にしないで!!!!!!! ///////
 
             // ---4.ベクトル合成---
-            move_angle = atan2(go_y,go_x) * 180 /M_PI ;　//tanで角度計算
+            move_angle = atan2(go_y,go_x) * 180 /M_PI ;//tanで角度計算
 
             // --- 5. ゴール角度による制限 ---
             if (goal_flag == 1 && ((goal_angle >= 210 && goal_angle < 360) && ir_angle < 180)) {
@@ -445,4 +447,4 @@ void loop()
        delay(100);
     }
   }
-}x
+}
