@@ -246,23 +246,29 @@ void camera_read() {
             if(yellow_flag == 1){
                 goal_angle  = yellow_angle;
                 goal_height = yellow_height;
+                goal_flag = 1;
             }else if(blue_flag == 1){
                 goal_angle  = blue_angle-180;
                 goal_height = 1;
+                goal_flag = 1;
             }else{
                 goal_angle  = 0;
                 goal_height = 0; 
+                goal_flag = 0;
             }
         }else{  // 青色ゴール攻めの時
             if(blue_flag == 1){
                 goal_angle  = blue_angle;
                 goal_height = blue_height;
+                goal_flag = 1;
             }else if(yellow_flag == 1){
                 goal_angle  = yellow_angle-180;
                 goal_height = 1;
+                goal_flag = 1;
             }else{
                 goal_angle  = 0;
                 goal_height = 0;  
+                goal_flag = 0;
             }
         }
     }
@@ -350,10 +356,10 @@ void loop()
             // --- 2. 移動(x軸)方向の決定---
             if (ir_angle > 0 && ir_angle < 180){
               go_x = speed;
-              //move_angle = 90;
+              move_angle = 90;
             } else {
               go_x = speed * -1;
-              //move_angle = 270;
+              move_angle = 270;
             }
             
             // ---3.移動(y軸)方向の決定---
