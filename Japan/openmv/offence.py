@@ -15,8 +15,8 @@ sensor.set_auto_gain(False, gain_db=8)
 sensor.set_auto_whitebal(False, rgb_gain_db=(60, 58, 61))
 
 # --- 設定エリア ---
-yellow_threshold = (72, 33, -3, 38, 36, 10)
-blue_threshold   = (36, 51, 10, -10, -10, -23)
+yellow_threshold = (31, 40, 83, 0, 71, 19)
+blue_threshold   = (15, 7, -78, 0, -27, -3)
 center_x = 335
 center_y = 230
 
